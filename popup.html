@@ -1,0 +1,83 @@
+<html>
+<head>
+	<style>
+		body{
+			position:relative;
+			font-family:arial,sans-serif;
+			font-size:12px;
+			margin:0px 4px 0px 4px;
+			padding:0px;
+			text-align:center;
+			-webkit-user-select:none;
+		}
+		.vs{
+			font-weight:bold;font-size:1.1em;
+		}
+		#miniscreen{
+			position:relative;
+			overflow:hidden;
+			width:50px;height:50px;
+			border:2px solid #449;
+		}
+		#msbox{
+			position:relative;
+		}
+		#scrolldrag{
+			position:absolute;
+			background-color:grey;
+			z-index:999;
+			margin:2px 2px 0px 0px;
+			opacity:0.8;
+		}
+		.video{
+			position:absolute;
+			border:2px solid #44F;
+			background-color:rgba(64,64,255,0.5);
+			z-index:50;
+			cursor:lock;
+		}
+		.videofixed{
+			position:absolute;
+			border:2px solid orange;
+			background-color:rgba(255,192,0,0.5);
+			z-index:100;
+			cursor:move;
+		}
+		.wsnowrap{
+			white-space:nowrap;
+		}
+		
+		.resize-se{
+			cursor:se-resize;
+			width:10px;
+			height:10px;
+			background-color:grey;
+			position:absolute;
+			bottom:0px;right:0px;
+		}
+		#contextMenu{
+			z-index:9999;
+		}
+		#contextMenu a{
+			display:block;
+			background-color:white;
+			border:1px solid grey;
+		}
+		#contextMenu a:hover{
+			background-color:blue;
+		}
+	</style>
+  <script src="Cr.js"></script>
+  <script src="popup.js"></script>
+</head>
+<body>
+	<div class="vs">Video Sticky Tape</div>
+	<div id="msbox"></div>
+	<div id="load">LOADING</div>
+	<div class="wsnowrap">
+		Click video to stick to screen.<br/>
+		Drag video to reposition.<br/>
+		Click again to restore video.
+	</div>
+</body>
+</html>
