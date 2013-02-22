@@ -1,10 +1,6 @@
 vidStickBlock: {
-if(document.getElementById('ChromeExtension:Video-Tape'))break vidStickBlock;
-//TODO:: add element id ChromeExtension:Video-Tape to page
-a=document.createElement('div');
-a.setAttribute('id','ChromeExtension:Video-Tape');
-a.setAttribute('style','display:none;');
-document.body.appendChild(a);
+if(document.body.getAttribute('chromeextension:video-tape'))break vidStickBlock;
+document.body.setAttribute('chromeextension:video-tape',true);
 var tabid=false;
 function _ge(g){
 	return document.getElementById(g);
@@ -50,6 +46,7 @@ function nodeInserted(){
 	chkForNodesTimeout=setTimeout(checkForNodes,250);
 }
 document.body.addEventListener('DOMNodeInserted', nodeInserted, false);
+document.body.addEventListener('DOMNodeRemoved', nodeInserted, false);
 
 var validNodes=[];
 var topFixed=1000;
@@ -157,7 +154,7 @@ function viewScrolled(){
 window.addEventListener('scroll',viewScrolled);
 
 function computeBoxShadow(m){
-	m.style.boxShadow=Math.round(((((m.style.left.replace('px','')-0+(m.clientWidth*0.5)))/getWindowWidth())-0.5)*-7)+'px 5px 5px #555';
+//m.style.boxShadow=Math.round(((((m.style.left.replace('px','')-0+(m.clientWidth*0.5)))/getWindowWidth())-0.5)*-7)+'px 5px 5px #555';
 }
 
 chrome.extension.onRequest.addListener(
@@ -181,6 +178,9 @@ function(request, sender, sendResponse) {
 	}else if (request.moveVideo){
 		var i=request.moveVideo-1;
 		var m = validNodes[i].elm;
+		
+		if(request.x < 0 && request.x > -30)request.x=0;
+		if(request.y < 0 && request.y > -30)request.y=0;
 		
 		m.style.top=(request.y)+'px';
 		m.style.left=(request.x)+'px';
