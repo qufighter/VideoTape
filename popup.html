@@ -57,15 +57,20 @@
 		}
 		#contextMenu{
 			z-index:9999;
+			border-top:1px solid grey;
+			background-color:white;
 		}
 		#contextMenu a{
 			display:block;
-			background-color:white;
+			cursor:hand;
 			border:1px solid grey;
+			border-top:none;
+			padding:0px 3px 0px 3px;
 		}
 		#contextMenu a:hover{
-			background-color:blue;
+			background-color:#AAA;
 		}
+		#helptxt{display:none;}
 	</style>
   <script src="Cr.js"></script>
   <script src="popup.js"></script>
@@ -74,9 +79,10 @@
 	<div class="vs">Video Sticky Tape</div>
 	<div id="msbox"></div>
 	<div id="load">LOADING</div>
-	<div class="wsnowrap">
-		Click video to stick to screen.<br/>
-		Drag video to reposition.<br/>
+	<a href="#help" id="helpbtn">Help</a><div id="helptxt" class="wsnowrap">
+		Scroll video onto screen<br/>
+		Click fastens to window edge.<br/>
+		Drag to reposition.<br/>
 		Click again to restore video.
 	</div>
 </body>
