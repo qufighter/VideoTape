@@ -36,11 +36,31 @@ chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
     if(request.updatePreview){
 			getCurrentLayout();
+			if(localStorage.takeSnapshots=='true')snapshot(sender.tab.windowId);
     }
     sendResponse({});
   }
 );
-
+var snapshotTimeout=0;
+function snapshot(winId){
+	var winid=winId;
+	clearTimeout(snapshotTimeout);
+	snapshotTimeout=setTimeout(function(){
+		chrome.tabs.captureVisibleTab(winid, {format:'jpeg',quality:50}, function(dataUrl){
+			var ms=_ge('miniscreen');
+			cvs = document.createElement('canvas');
+			cvs.width = ms.clientWidth;
+			cvs.height = ms.clientHeight;
+			ctx = cvs.getContext("2d");
+			pim = new Image();
+			pim.onload=function(){
+				ctx.drawImage(pim,0,0,cvs.width,cvs.height);
+				ms.style.backgroundImage='url('+cvs.toDataURL()+')';
+			}
+			pim.src=dataUrl;
+		});
+	},250);
+}
 function videoElmToIdNum(elm){
 	return elm.id.split('_')[1]-0+1;
 }
@@ -223,7 +243,7 @@ function iin(){
 	chrome.windows.getCurrent(function(window){
 		chrome.tabs.getSelected(window.id, function(tab){
 			tabid=tab.id;
-			//chrome.tabs.sendRequest(tabid,{justOpened:true,tabid:tabid},function(r){});
+			chrome.tabs.sendRequest(tabid,{justOpened:true,vidDropShadow:localStorage['vidDropShadow']=='true'},function(r){});
 			getCurrentLayout();
 		})
 	})

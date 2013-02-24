@@ -1,15 +1,15 @@
 vidStickBlock: {
 if(document.body.getAttribute('chromeextension:video-tape'))break vidStickBlock;
-document.body.setAttribute('chromeextension:video-tape',true);
 var tabid=false;
+vidDropShadow=false;
 function _ge(g){
 	return document.getElementById(g);
 }
 function getFixedOffset( el ){
-		var rec = el.getClientRects()[0];
-		if(rec && rec.top)
-			return{y:rec.top,x:rec.left};
-		else return{y:0,x:0};
+	var rec = el.getClientRects()[0];
+	if(rec && rec.top)
+		return{y:rec.top,x:rec.left};
+	else return{y:0,x:0};
 }
 function getWindowWidth(){
  return window.innerWidth;
@@ -18,26 +18,26 @@ function getWindowHeight(){
  return window.innerHeight;
 }
 function getScrollY(){
-    if(document.all){
-        return document.documentElement.scrollTop;
-    }else{
-        return window.pageYOffset;
-    }
+  if(document.all){
+      return document.documentElement.scrollTop;
+  }else{
+      return window.pageYOffset;
+  }
 }
 function getScrollX(){
-    if(document.all){
-        return document.documentElement.scrollLeft;
-    }else{
-        return window.pageXOffset;
-    }
+  if(document.all){
+      return document.documentElement.scrollLeft;
+  }else{
+      return window.pageXOffset;
+  }
 }
 function getOffset( el ){
-    var _x=0,_y=0;
-    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
-    		_x+=el.offsetLeft;// - el.scrollLeft;
-    		_y+=el.offsetTop;// - el.scrollTop;  
-        el=el.offsetParent;
-    }return { y: _y, x: _x };
+  var _x=0,_y=0;
+  while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+  		_x+=el.offsetLeft;// - el.scrollLeft;
+  		_y+=el.offsetTop;// - el.scrollTop;  
+      el=el.offsetParent;
+  }return { y: _y, x: _x };
 }
 function preventEventDefault(ev){
 	ev = ev || event;
@@ -108,24 +108,26 @@ function checkForNodes(){
 	
 	*/
 	
+	var minHeight = 50;
+	
 	for(var x=0,l=nodes1.length;x<l;x++){
-		if(nodes1[x].clientWidth < 10) continue;
+		if(nodes1[x].clientHeight < minHeight) continue;
 		if(nodes1[x].parentNode.nodeName=="OBJECT") continue;
 		validNodes.push({typ:'flash',elm:nodes1[x]});
 	}
 	
 	for(var x=0,l=nodes1b.length;x<l;x++){
-		if(nodes1b[x].clientWidth < 10) continue;
+		if(nodes1b[x].clientHeight < minHeight) continue;
 		validNodes.push({typ:'flash',elm:nodes1b[x]});
 	}
 	
 	for(var x=0,l=nodes2.length;x<l;x++){
-		if(nodes2[x].clientWidth < 10) continue;
+		if(nodes2[x].clientHeight < minHeight) continue;
 		validNodes.push({typ:'html5',elm:nodes2[x]});
 	}
 	
 	for(var x=0,l=nodes3.length;x<l;x++){
-		if(nodes3[x].clientWidth < 10) continue;
+		if(nodes3[x].clientHeight < minHeight) continue;
 		if(nodes3[x].getAttribute('aria-hidden') == 'true') continue;
 		validNodes.push({typ:'iframe',elm:nodes3[x]});
 	}
@@ -202,7 +204,7 @@ function spacerContextMenu(ev){
 }
 
 function computeBoxShadow(m){
-//m.style.boxShadow=Math.round(((((m.style.left.replace('px','')-0+(m.clientWidth*0.5)))/getWindowWidth())-0.5)*-7)+'px 5px 5px #555';
+	if(vidDropShadow)m.style.boxShadow=Math.round(((((m.style.left.replace('px','')-0+(m.clientWidth*0.5)))/getWindowWidth())-0.5)*-7)+'px 5px 5px #555';
 }
 
 function affixVideo(i){
@@ -241,7 +243,7 @@ function unfixVideo(i, showRestored){
 	viewScrolled();
 }
 
-chrome.extension.onRequest.addListener(
+if(!document.body.getAttribute('chromeextension:video-tape'))chrome.extension.onRequest.addListener(
 function(request, sender, sendResponse) {
 	if (request.getLayout){
 		tabid = request.tabid;
@@ -265,7 +267,7 @@ function(request, sender, sendResponse) {
 		if(request.y < ith && request.y > -oth)request.y=0;
 		m.style.top=(request.y)+'px';
 		m.style.left=(request.x)+'px';
-		//computeBoxShadow(m);
+		computeBoxShadow(m);
 		if(i!=lasMoveVideo)
 			m.style.zIndex=++topFixed;
 		lasMoveVideo=i;
@@ -291,9 +293,11 @@ function(request, sender, sendResponse) {
 		checkForNodes();
 		sendResponse({});
 	}else if (request.justOpened){
+		vidDropShadow = request.vidDropShadow?true:false;
 		tabid = request.tabid;
 		checkForNodes();
 		sendResponse({});
 	}else sendResponse({});
 });
+document.body.setAttribute('chromeextension:video-tape',true);
 }//end block

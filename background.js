@@ -8,7 +8,10 @@ chrome.extension.onRequest.addListener(
 			//chrome.pageAction.hide()
 			chrome.pageAction.setIcon({tabId:sender.tab.id, path:{19:'images/inactive/icon19.png',38:'images/inactive/icon38.png'}}, function(){})
 			sendResponse({});
-    }else{
+		}else{
     	sendResponse({});
     }
   });
+
+if(typeof(localStorage["usageStatistics"])=='undefined')localStorage["usageStatistics"]=false;
+if(typeof(localStorage["shareVideos"])=='undefined')localStorage["shareVideos"]=false;
