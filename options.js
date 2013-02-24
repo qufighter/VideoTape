@@ -247,6 +247,10 @@ chrome.extension.onRequest.addListener(
   });
   
 
+function showHelp(){
+	toggle_next_sibling_display({target:document.getElementById('shohelp')})
+}
+
 function toggle_next_sibling_display(ev){
 	who=getEventTargetA(ev);
 	var nss=who.nextSibling.style;if(nss.display=='block')nss.display='none';else nss.display='block';
@@ -259,6 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	document.getElementById('shoadvanc').addEventListener('click', toggle_next_sibling_display);
 	document.getElementById('shohelp').addEventListener('click', toggle_next_sibling_display);
+	document.getElementById('termsofuse').addEventListener('click', showHelp);
 
 	if(window.location.hash=='#help'){
 		toggle_next_sibling_display({target:document.getElementById('shohelp')})
