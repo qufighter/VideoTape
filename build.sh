@@ -2,7 +2,7 @@
 # This script builds the project as a chrome zip upload
 # it should only be run from the directory that it is in
 
-PROG="VidStick"
+PROG="VideoTape"
 mani="manifest.json"
 mfj=`ls manifest.json`
 

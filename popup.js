@@ -1,4 +1,4 @@
-var tabid=0;
+var tabid=0,winid=0;
 var scaleFactor = 0.2;
 function _ge(g){
 	return document.getElementById(g);
@@ -36,17 +36,16 @@ chrome.extension.onRequest.addListener(
   function(request, sender, sendResponse) {
     if(request.updatePreview){
 			getCurrentLayout();
-			if(localStorage.takeSnapshots=='true')snapshot(sender.tab.windowId);
     }
     sendResponse({});
   }
 );
 var snapshotTimeout=0;
-function snapshot(winId){
-	var winid=winId;
+function snapshot(){
+	if(localStorage.takeSnapshots!='true')return;
 	clearTimeout(snapshotTimeout);
 	snapshotTimeout=setTimeout(function(){
-		chrome.tabs.captureVisibleTab(winid, {format:'jpeg',quality:50}, function(dataUrl){
+		chrome.tabs.captureVisibleTab(winid, {format:'jpeg',quality:10}, function(dataUrl){
 			var ms=_ge('miniscreen');
 			cvs = document.createElement('canvas');
 			cvs.width = ms.clientWidth;
@@ -60,6 +59,9 @@ function snapshot(winId){
 			pim.src=dataUrl;
 		});
 	},250);
+}
+function clear_snapshot(){
+	_ge('miniscreen').style.backgroundImage='';
 }
 function videoElmToIdNum(elm){
 	return elm.id.split('_')[1]-0+1;
@@ -120,6 +122,7 @@ function vidContextMenu(ev){
 var isdrag=false,scdrag=false,d_x=0,d_y=0,ds_x=0,ds_y=0;
 function vmdown(ev){
 	if(ev.which != 1) return;
+	clear_snapshot();
 	isdrag=getEventTarget(ev),
 	d_x=ev.pageX,d_y=ev.pageY;
 	ds_x=d_x,ds_y=d_y;
@@ -143,6 +146,8 @@ function vmup(ev){
 		isdrag=false;
 		return;
 	}
+	
+	snapshot();
 	
 	if(elm.className=='videofixed' && (ds_x!=ev.pageX || ds_y!=ev.pageY)){
 		isdrag=false;
@@ -226,7 +231,8 @@ function getCurrentLayout(){
 			_ge('scrolldrag').style.top=Math.round(r.win.scrypcnt*(r.win.h-_ge('scrolldrag').clientHeight))+'px';
 			
 		}
-
+		
+		snapshot();
 	});
 }
 
@@ -241,7 +247,8 @@ function iin(){
 	document.body.addEventListener('mouseup',vmup);
 	window.addEventListener('mousewheel',mwheel);
 	chrome.windows.getCurrent(function(window){
-		chrome.tabs.getSelected(window.id, function(tab){
+		winid=window.id;
+		chrome.tabs.getSelected(winid, function(tab){
 			tabid=tab.id;
 			chrome.tabs.sendRequest(tabid,{justOpened:true,vidDropShadow:localStorage['vidDropShadow']=='true'},function(r){});
 			getCurrentLayout();
@@ -259,4 +266,5 @@ document.addEventListener('DOMContentLoaded', function () {
 	//_ge('popout').addEventListener('click', popOut);
 	
 	document.getElementById('helpbtn').addEventListener('click', toggle_next_sibling_display);
+
 });
