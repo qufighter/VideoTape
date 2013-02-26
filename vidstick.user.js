@@ -1,5 +1,5 @@
 vidStickBlock: {
-if(document.body.getAttribute('chromeextension:video-tape'))break vidStickBlock;
+if(document.body.getAttribute('chromeextension-video-tape'))break vidStickBlock;
 var tabid=false;
 vidDropShadow=false;
 function _ge(g){
@@ -196,10 +196,10 @@ function spacerContextMenu(ev){
 	var elm=getEventTarget(ev);
 	ctx_cur_elm=elm;
 	clearContextMenu();
-	var ctxItms=[];
-	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_remove_spacer,true]]},[Cr.txt('Remove Video Spacer')]));
-	ctxItms.push(Cr.elm('a',{events:[['mouseup',clearContextMenu,true]]},[Cr.txt('Close Menu')]));
-	Cr.elm('div',{id:'videoTapeCtxM',style:'position:absolute;top:'+ev.pageY+'px;left:'+ev.pageX+'px;'},ctxItms,document.body);
+	Cr.elm('div',{id:'videoTapeCtxM',style:'position:absolute;top:'+ev.pageY+'px;left:'+ev.pageX+'px;'},[
+		Cr.elm('a',{events:[['mouseup',ctx_remove_spacer,true]]},[Cr.txt('Remove Video Spacer')]),
+		Cr.elm('a',{events:[['mouseup',clearContextMenu,true]]},[Cr.txt('Close Menu')])
+	],document.body);
 	return preventEventDefault(ev);
 }
 

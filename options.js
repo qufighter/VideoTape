@@ -19,8 +19,8 @@ var pAdvOptions=[];
 //pAdvOptions["redirectSameWindow"]={def:false,ind:1,name:'Use the same window (warning: you may lose form data)'};
 pOptions["vidDropShadow"]={def:false,ind:0,name:'Add Drop Shadow'};
 pOptions["takeSnapshots"]={def:false,ind:0,name:'Take Page Snapshots for Preview'};
-pOptions["usageStatistics"]={def:false,ind:0,name:'Gather Usage Statistics (See Terms of Use)'};
-pOptions["shareVideos"]={def:false,ind:0,name:'Share Video Statistics (See Terms of Use)'};
+pOptions["usageStatistics"]={def:true,ind:0,name:'Gather Usage Statistics (See Terms of Use)'};
+pOptions["shareVideos"]={def:true,ind:0,name:'Share Video Statistics (See Terms of Use)'};
 
 // Saves options to localStorage.
 function save_options() {

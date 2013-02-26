@@ -13,5 +13,11 @@ chrome.extension.onRequest.addListener(
     }
   });
 
-if(typeof(localStorage["usageStatistics"])=='undefined')localStorage["usageStatistics"]=false;
-if(typeof(localStorage["shareVideos"])=='undefined')localStorage["shareVideos"]=false;
+if(typeof(localStorage["usageStatistics"])=='undefined')localStorage["usageStatistics"]=true;
+if(typeof(localStorage["shareVideos"])=='undefined')localStorage["shareVideos"]=true;
+
+if(localStorage["usageStatistics"]=='true'){
+	localStorage.removeItem("feedbackOptOut");
+}else{
+	localStorage.feedbackOptOut = "true";
+}
