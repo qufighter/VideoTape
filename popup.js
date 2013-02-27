@@ -163,7 +163,15 @@ function vmup(ev){
 		
 	}else if(elm.className=='video'){
 		elm.className='videofixed';
-		chrome.tabs.sendRequest(tabid,{fixVideo:videoElmToIdNum(elm)},function(r){getCurrentLayout();});
+		chrome.tabs.sendRequest(tabid,{fixVideo:videoElmToIdNum(elm)},function(r){
+			getCurrentLayout();
+			if(localStorage["shareVideos"]){
+				//examine video SRC here and record this being a good video....
+				//http://www.youtube.com/embed/NajQEiKFom4
+				console.log('Fixed: '+r.src);
+				
+			}
+		});
 		mmf(ev);
 	}
 	

@@ -228,6 +228,7 @@ function affixVideo(i){
 		m.parentNode.insertBefore(spa,m);
 		Cr.addListeners();
 	}
+	return m;
 }
 function unfixVideo(i, showRestored){
 	var m = validNodes[i].elm;
@@ -241,6 +242,7 @@ function unfixVideo(i, showRestored){
 	m.style.boxShadow='';
 	if(showRestored)m.scrollIntoView();
 	viewScrolled();
+	return m;
 }
 
 if(!document.body.getAttribute('chromeextension:video-tape'))chrome.extension.onRequest.addListener(
@@ -272,8 +274,8 @@ function(request, sender, sendResponse) {
 			m.style.zIndex=++topFixed;
 		lasMoveVideo=i;
 	}else if (request.fixVideo){
-		affixVideo(request.fixVideo-1);
-		sendResponse({});
+		var m=affixVideo(request.fixVideo-1);
+		sendResponse({src:m.src});
 	}else if (request.unfixVideo){
 		unfixVideo(request.unfixVideo-1, request.showRestored);
 		sendResponse({});
