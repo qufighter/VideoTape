@@ -3,7 +3,7 @@
    "description": "Allows you to tape most videos to the window so you can scroll around or read on while the video plays on screen.",
    "name": "Video Tape",
    "content_scripts": [ {
-      "js": [ "Cr.js", "vidstick.user.js" ],
+      "js": [ "Cr_min.js", "vidstick.user.js" ],
       "run_at": "document_idle",
       "matches": [ "http://*/*", "https://*/*" ]
    } ],
