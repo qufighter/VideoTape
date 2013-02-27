@@ -16,7 +16,7 @@ chrome.extension.onRequest.addListener(
 if(typeof(localStorage["usageStatistics"])=='undefined')localStorage["usageStatistics"]=true;
 if(typeof(localStorage["shareVideos"])=='undefined')localStorage["shareVideos"]=true;
 
-if(localStorage["usageStatistics"]=='true'){
+if(localStorage["usageStatistics"]=='true' && !navigator.doNotTrack){
 	localStorage.removeItem("feedbackOptOut");
 }else{
 	localStorage.feedbackOptOut = "true";
