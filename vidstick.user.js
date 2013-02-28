@@ -7,8 +7,7 @@ function _ge(g){
 }
 function getFixedOffset( el ){
 	var rec = el.getClientRects()[0];
-	if(rec && rec.top)
-		return{y:rec.top,x:rec.left};
+	if(rec)return{y:rec.top,x:rec.left};
 	else return{y:0,x:0};
 }
 function getWindowWidth(){
@@ -142,6 +141,8 @@ function checkForNodes(){
 				validNodes[x].elm = tel;
 				tel=tel.parentNode;
 			}
+			myl=validNodes[x].elm;
+			myl.setAttribute("vidTapeOrigProps",JSON.stringify({w:myl.clientWidth,h:myl.clientHeight}));
 		}
 		
 		//lets try to fix all the zindexes too... what a mess! (we just want to place a given element on top of all)... well this block sort of fixes youtube but not good enough
@@ -235,12 +236,15 @@ function unfixVideo(i, showRestored){
 	if(m.previousSibling && m.previousSibling.className=='_vidstickspacer'){
 		m.parentNode.removeChild(m.previousSibling);
 	}
+	var origProps=JSON.parse(m.getAttribute("vidTapeOrigProps"));
 	m.style.position='relative';
 	m.style.top='0px';
 	m.style.left='0px';
+	m.style.width=origProps.w+'px';
+	m.style.height=origProps.h+'px';
 	m.style.WebkitTransform='none';
 	m.style.boxShadow='';
-	if(showRestored)m.scrollIntoView();
+	if(showRestored)m.scrollIntoViewIfNeeded();
 	viewScrolled();
 	return m;
 }
@@ -273,6 +277,12 @@ function(request, sender, sendResponse) {
 		if(i!=lasMoveVideo)
 			m.style.zIndex=++topFixed;
 		lasMoveVideo=i;
+	}else if (request.sizeVideo){
+		var i=request.sizeVideo-1;
+		var m = validNodes[i].elm;
+		m.style.height=(request.h)+'px';
+		m.style.width=(request.w)+'px';
+		computeBoxShadow(m);
 	}else if (request.fixVideo){
 		var m=affixVideo(request.fixVideo-1);
 		sendResponse({src:m.src});

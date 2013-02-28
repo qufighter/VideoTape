@@ -9,18 +9,7 @@ function getEventTargetA(ev){
 	return targ;
 }
 
-var pOptions=[];
-var pAdvOptions=[];
-//pOptions["maxhistory"]={def:15,ind:0,name:'Max History per Window '};
-//pOptions["dothumbs"]={def:false,ind:0,name:'Collect Thumbnails'};
-//pOptions["hqthumbs"]={def:false,ind:1,name:'HQ Thumbnails (more ram) '};
-
-//WARNIGN you have to set defaults two places for now...
-//pAdvOptions["redirectSameWindow"]={def:false,ind:1,name:'Use the same window (warning: you may lose form data)'};
-pOptions["vidDropShadow"]={def:false,ind:0,name:'Add Drop Shadow'};
-pOptions["takeSnapshots"]={def:false,ind:0,name:'Take Page Snapshots for Preview'};
-pOptions["usageStatistics"]={def:true,ind:0,name:'Gather Usage Statistics (See Terms of Use)'};
-pOptions["shareVideos"]={def:true,ind:0,name:'Share Video Statistics (See Terms of Use)'};
+//see opt_prefs.js
 
 // Saves options to localStorage.
 function save_options() {
