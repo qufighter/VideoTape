@@ -46,22 +46,26 @@ function snapshot(){
 	clearTimeout(snapshotTimeout);
 	snapshotTimeout=setTimeout(function(){
 		chrome.tabs.captureVisibleTab(winid, {format:'jpeg',quality:10}, function(dataUrl){
-			var ms=_ge('miniscreen');
-			cvs = document.createElement('canvas');
-			cvs.width = ms.clientWidth;
-			cvs.height = ms.clientHeight;
-			ctx = cvs.getContext("2d");
+//			var ms=_ge('miniscreen');
+//			cvs = document.createElement('canvas');
+//			cvs.width = ms.clientWidth;
+//			cvs.height = ms.clientHeight;
+			bcvs =_ge('minican').getContext('2d');
 			pim = new Image();
 			pim.onload=function(){
-				ctx.drawImage(pim,0,0,cvs.width,cvs.height);
-				ms.style.backgroundImage='url('+cvs.toDataURL()+')';
+				//image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight
+				bcvs.drawImage(pim,0,0,pim.width-Math.floor((pim.width/_ge('minican').width)*10),pim.height,0,0,_ge('minican').width-10,_ge('minican').height);
+				//bcvs.drawImage(pim,0,0,_ge('minican').width,_ge('minican').height);
+				//ms.style.backgroundImage='url('+cvs.toDataURL()+')';
 			}
 			pim.src=dataUrl;
 		});
 	},250);
 }
 function clear_snapshot(){
-	_ge('miniscreen').style.backgroundImage='';
+	var bcvs=_ge('minican').getContext('2d');
+	bcvs.clearRect(0,0,_ge('minican').width-10,_ge('minican').height);
+	//_ge('miniscreen').style.backgroundImage='';
 }
 function videoElmToIdNum(elm){
 	return elm.id.split('_')[1]-0+1;
@@ -119,7 +123,7 @@ function vidContextMenu(ev){
 	return preventEventDefault(ev);
 }
 
-var isdrag=false,scdrag=false,isresize=false,d_x=0,d_y=0,ds_x=0,ds_y=0;
+var isdrag=false,scdrag=false,bardrag=false,isresize=false,d_x=0,d_y=0,ds_x=0,ds_y=0;
 function vmdown(ev){
 	if(ev.which != 1) return;
 	clear_snapshot();
@@ -130,6 +134,11 @@ function vmdown(ev){
 	ds_x=d_x,ds_y=d_y;
 	return preventEventDefault(ev);
 }
+function scrollbarclick(ev){
+	bardrag=getEventTarget(ev),
+	mmf(ev);
+	return preventEventDefault(ev);
+}
 function scrollmdown(ev){
 	scdrag=getEventTarget(ev),
 	d_x=ev.pageX,d_y=ev.pageY;
@@ -138,10 +147,10 @@ function scrollmdown(ev){
 }
 function vmup(ev){
 	var elm=isdrag || getEventTarget(ev);
-
+	bardrag=false;
 	scdrag=false;
 	isresize=false;
-
+	
 	if(ev.which == 2){
 		chrome.tabs.sendRequest(tabid,{removeVideo:videoElmToIdNum(elm)},function(r){
 			getCurrentLayout();
@@ -172,7 +181,7 @@ function vmup(ev){
 				var vURL=false;
 				var vTitle=false;
 
-				if(r.src.indexOf('youtube.com/embed')){
+				if(r.src && r.src.indexOf('youtube.com/embed')){
 					var urlPart=r.src.split('/');
 					vURL = 'http://www.youtube.com/watch?v='+urlPart[urlPart.length-1];
 					vTitle = '';
@@ -226,6 +235,15 @@ function mmf(ev){
 		d_x=ev.pageX,d_y=ev.pageY;
 		chrome.tabs.sendRequest(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
 		return preventEventDefault(ev);
+	}else if(bardrag){
+		var scHei = _ge('scrolldrag').clientHeight;
+		var maxSc=_ge('miniscreen').clientHeight - scHei;
+		var ny=Math.round(((ev.pageY-_ge('msbox').offsetTop-(scHei*0.5)) / _ge('miniscreen').clientHeight)*_ge('miniscreen').clientHeight);
+		if(ny < 0)ny=0;
+		if(ny > maxSc)ny=maxSc;
+		_ge('scrolldrag').style.top=ny+'px';
+		chrome.tabs.sendRequest(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
+		return preventEventDefault(ev);
 	}
 }
 
@@ -243,6 +261,14 @@ function getCurrentLayout(){
 		r.win.w=Math.ceil(r.win.w*scaleFactor);
 		r.win.h=Math.ceil(r.win.h*scaleFactor);
 		
+		_ge('minican').width=r.win.w;
+		_ge('minican').height=r.win.h;
+		_ge('minican').style.width=r.win.w+'px';
+		_ge('minican').style.height=r.win.h+'px';
+		var bcvs=_ge('minican').getContext('2d');
+		bcvs.clearRect(0,0,r.win.w,r.win.h);
+		bcvs.fillStyle = "rgba(0,0,0,1.0)";//croshair
+		
 		var childs=[];
 		
 		for(var i=0,l=r.elm.length;i<l;i++){
@@ -256,15 +282,16 @@ function getCurrentLayout(){
 										 },[Cr.elm('div',{class:'resize-se'},[])])
 			);
 			
+			var percent = (r.elm[i].y + r.win.scry + (r.elm[i].h * 0.5)) /  r.win.docHei;
+			bcvs.fillRect(r.win.w-10, Math.round(percent*r.win.h)  , 10, 1);
 		}
 		var ms=_ge('miniscreen');
 		if(ms)_ge('msbox').removeChild(ms);
 		ms=Cr.elm('div',{'id':'miniscreen','style':'width:'+r.win.w+'px;height:'+r.win.h+'px;'},childs,_ge('msbox'));
 
-		
 		if(!scdrag){
 			_ge('scrolldrag').style.top=Math.round(r.win.scrypcnt*(r.win.h-_ge('scrolldrag').clientHeight))+'px';
-			
+			_ge('scrollhold').style.height=r.win.h+"px";
 		}
 		
 		snapshot();
@@ -273,10 +300,12 @@ function getCurrentLayout(){
 
 initalLoad=true;
 function iin(){
-	Cr.elm('div',{'id':'scrolldrag',
-		'style':'top:'+(0)+'px;right:'+(0)+'px;width:'+(10)+'px;height:'+(20)+'px;',
-	  'events':[['mousedown',scrollmdown],['dragstart',preventEventDefault]]
-	 },[],_ge('msbox'))
+	Cr.elm('div',{'id':'scrollhold','events':[['mousedown',scrollbarclick],['dragstart',preventEventDefault]]},[
+		Cr.elm('div',{'id':'scrolldrag',
+			'style':'top:'+(0)+'px;right:'+(0)+'px;width:'+(10)+'px;height:'+(20)+'px;',
+		  'events':[['mousedown',scrollmdown],['dragstart',preventEventDefault]]
+		})
+	],_ge('msbox'))
 	
 	document.body.addEventListener('mousemove',mmf);
 	document.body.addEventListener('mouseup',vmup);

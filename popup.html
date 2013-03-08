@@ -23,11 +23,23 @@
 		#msbox{
 			position:relative;
 		}
+		#minican{
+			width:50px;height:50px;
+			position:absolute;
+			z-index:-50;
+			top:2px;left:2px;
+		}
+		#scrollhold{
+			position:absolute;
+			top:0px;right:0px;
+			width:10px;
+			margin:2px 2px 0px 0px;
+			z-index:999;
+		}
 		#scrolldrag{
 			position:absolute;
 			background-color:grey;
-			z-index:999;
-			margin:2px 2px 0px 0px;
+			z-index:0;
 			opacity:0.8;
 		}
 		.video{
@@ -80,7 +92,7 @@
 </head>
 <body>
 	<div class="vs">Video Sticky Tape</div>
-	<div id="msbox"></div>
+	<div id="msbox"><canvas id="minican"></canvas></div>
 	<div id="load">LOADING</div>
 	<a target="_blank" href="options.html">Options</a>
 	<a href="#help" id="helpbtn">Help</a><div id="helptxt" class="wsnowrap">

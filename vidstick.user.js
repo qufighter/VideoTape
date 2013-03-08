@@ -259,7 +259,7 @@ function(request, sender, sendResponse) {
 			var sp=getFixedOffset(m);
 			response.push({x:sp.x,y:sp.y,w:m.clientWidth,h:m.clientHeight,fixed:m.style.position=='fixed'});
 		}	
-		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight())},elm:response});
+		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response});
 	}else if (request.scrToYpcnt){
 		window.scrollTo(0,request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight()));
 	}else if (request.mwheel){
