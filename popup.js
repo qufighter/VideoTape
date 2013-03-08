@@ -150,7 +150,7 @@ function vmup(ev){
 	bardrag=false;
 	scdrag=false;
 	isresize=false;
-	
+
 	if(ev.which == 2){
 		chrome.tabs.sendRequest(tabid,{removeVideo:videoElmToIdNum(elm)},function(r){
 			getCurrentLayout();

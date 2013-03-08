@@ -260,8 +260,8 @@ function(request, sender, sendResponse) {
 			response.push({x:sp.x,y:sp.y,w:m.clientWidth,h:m.clientHeight,fixed:m.style.position=='fixed'});
 		}	
 		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response});
-	}else if (request.scrToYpcnt){
-		window.scrollTo(0,request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight()));
+	}else if (request.scrToYpcnt!==false){
+		window.scrollTo(0,Math.round(request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight())));
 	}else if (request.mwheel){
 		window.scrollBy(0,-request.mwheel*0.5);
 	}else if (request.moveVideo){
