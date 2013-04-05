@@ -76,7 +76,7 @@ document.body.addEventListener('DOMNodeRemoved', nodeInserted, false);
 var validNodes=[];
 var topFixed=1000;
 var lasMoveVideo=-1;
-
+var wasEnabled=false;
 
 function checkForNodes(){
 	var testurl=window.location.href;
@@ -163,15 +163,15 @@ function checkForNodes(){
 //		}
 		
 		//console.log(validNodes);
-		chrome.extension.sendRequest({enable:true}, function(response){
+		chrome.runtime.sendMessage({enable:true}, function(response){
 			
 		});
 		if(tabid)
-			chrome.extension.sendRequest({updatePreview:true},function(r){});
-	}else{
-		chrome.extension.sendRequest({disable:true}, function(response){
+			chrome.runtime.sendMessage({updatePreview:true},function(r){});
 			
-		});
+		wasEnabled=true;
+	}else{
+		if(wasEnabled) chrome.runtime.sendMessage({disable:true}, function(response){});
 	}
 }
 
@@ -179,7 +179,7 @@ checkForNodes();
 
 function viewScrolled(){
 	if(tabid)
-		chrome.extension.sendRequest({updatePreview:true},function(r){});
+		chrome.runtime.sendMessage({updatePreview:true},function(r){});
 }
 window.addEventListener('scroll',viewScrolled);
 
@@ -249,7 +249,7 @@ function unfixVideo(i, showRestored){
 	return m;
 }
 
-if(!document.body.getAttribute('chromeextension:video-tape'))chrome.extension.onRequest.addListener(
+if(!document.body.getAttribute('chromeextension:video-tape'))chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
 	if (request.getLayout){
 		tabid = request.tabid;

@@ -16,7 +16,8 @@
       "default_popup": "popup.html"
     },
    "background": {
-      "scripts": ["background.js"]
+      "scripts": ["background.js"],
+      "persistent": false
    },
    "options_page": "options.html",
    "icons": { "16": "images/icon16.png",

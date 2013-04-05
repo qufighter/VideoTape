@@ -32,7 +32,7 @@ function stopEventPropagation(ev){
 
 
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-chrome.extension.onRequest.addListener(
+chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if(request.updatePreview){
 			getCurrentLayout();
@@ -78,22 +78,22 @@ function clearContextMenu(){
 }
 
 function ctx_dom_detach_totop_video(ev){
-	chrome.tabs.sendRequest(tabid,{domDetachVideo:ctx_cur_video_id,attachToTop:true},function(r){getCurrentLayout();});
+	chrome.tabs.sendMessage(tabid,{domDetachVideo:ctx_cur_video_id,attachToTop:true},function(r){getCurrentLayout();});
 }
 function ctx_dom_detach_tobtm_video(ev){
-	chrome.tabs.sendRequest(tabid,{domDetachVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
+	chrome.tabs.sendMessage(tabid,{domDetachVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
 }
 function ctx_close_video(){
-	chrome.tabs.sendRequest(tabid,{removeVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
+	chrome.tabs.sendMessage(tabid,{removeVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
 }
 function ctx_unfix_video(ev){
-	chrome.tabs.sendRequest(tabid,{unfixVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
+	chrome.tabs.sendMessage(tabid,{unfixVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
 }
 function ctx_unfix_scrollto_video(ev){
-	chrome.tabs.sendRequest(tabid,{unfixVideo:ctx_cur_video_id,showRestored:true},function(r){getCurrentLayout();});
+	chrome.tabs.sendMessage(tabid,{unfixVideo:ctx_cur_video_id,showRestored:true},function(r){getCurrentLayout();});
 }
 function ctx_fix_video(ev){
-	chrome.tabs.sendRequest(tabid,{fixVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
+	chrome.tabs.sendMessage(tabid,{fixVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
 }
 
 function vidContextMenu(ev){
@@ -152,7 +152,7 @@ function vmup(ev){
 	isresize=false;
 
 	if(ev.which == 2){
-		chrome.tabs.sendRequest(tabid,{removeVideo:videoElmToIdNum(elm)},function(r){
+		chrome.tabs.sendMessage(tabid,{removeVideo:videoElmToIdNum(elm)},function(r){
 			getCurrentLayout();
 		});
 		isdrag=false;
@@ -171,10 +171,10 @@ function vmup(ev){
 	
 	if(elm.className=='videofixed'){
 		elm.className='video';
-		chrome.tabs.sendRequest(tabid,{unfixVideo:videoElmToIdNum(elm),showRestored:(localStorage.restoreScrolls=='true')},function(r){getCurrentLayout();});
+		chrome.tabs.sendMessage(tabid,{unfixVideo:videoElmToIdNum(elm),showRestored:(localStorage.restoreScrolls=='true')},function(r){getCurrentLayout();});
 	}else if(elm.className=='video'){
 		elm.className='videofixed';
-		chrome.tabs.sendRequest(tabid,{fixVideo:videoElmToIdNum(elm)},function(r){
+		chrome.tabs.sendMessage(tabid,{fixVideo:videoElmToIdNum(elm)},function(r){
 			getCurrentLayout();
 			if(localStorage["shareVideos"]){
 				//examine video SRC here and record this being a good video....
@@ -213,7 +213,7 @@ function mmf(ev){
 		d_x=ev.pageX,d_y=ev.pageY;
 		
 		if(isdrag.className=='videofixed'){
-			chrome.tabs.sendRequest(tabid,{moveVideo:videoElmToIdNum(isdrag),x:Math.round(nx/scaleFactor),y:Math.round(ny/scaleFactor)},function(r){});
+			chrome.tabs.sendMessage(tabid,{moveVideo:videoElmToIdNum(isdrag),x:Math.round(nx/scaleFactor),y:Math.round(ny/scaleFactor)},function(r){});
 		}
 		return preventEventDefault(ev);
 	}else if(isresize){
@@ -224,7 +224,7 @@ function mmf(ev){
 		isresize.style.width=nx+'px';
 		isresize.style.height=ny+'px';
 		d_x=ev.pageX,d_y=ev.pageY;
-		chrome.tabs.sendRequest(tabid,{sizeVideo:videoElmToIdNum(isresize),w:Math.round(nx/scaleFactor),h:Math.round(ny/scaleFactor)},function(r){});
+		chrome.tabs.sendMessage(tabid,{sizeVideo:videoElmToIdNum(isresize),w:Math.round(nx/scaleFactor),h:Math.round(ny/scaleFactor)},function(r){});
 		return preventEventDefault(ev);
 	}else if(scdrag){
 		var maxSc=_ge('miniscreen').clientHeight - scdrag.clientHeight;
@@ -233,7 +233,7 @@ function mmf(ev){
 		if(ny > maxSc)ny=maxSc;
 		scdrag.style.top=ny+'px';
 		d_x=ev.pageX,d_y=ev.pageY;
-		chrome.tabs.sendRequest(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
+		chrome.tabs.sendMessage(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
 		return preventEventDefault(ev);
 	}else if(bardrag){
 		var scHei = _ge('scrolldrag').clientHeight;
@@ -242,17 +242,17 @@ function mmf(ev){
 		if(ny < 0)ny=0;
 		if(ny > maxSc)ny=maxSc;
 		_ge('scrolldrag').style.top=ny+'px';
-		chrome.tabs.sendRequest(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
+		chrome.tabs.sendMessage(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
 		return preventEventDefault(ev);
 	}
 }
 
 function mwheel(ev){
-	chrome.tabs.sendRequest(tabid,{mwheel:ev.wheelDelta},function(r){});
+	chrome.tabs.sendMessage(tabid,{mwheel:ev.wheelDelta},function(r){});
 }
 
 function getCurrentLayout(){
-	chrome.tabs.sendRequest(tabid,{getLayout:true,tabid:tabid},function(r){
+	chrome.tabs.sendMessage(tabid,{getLayout:true,tabid:tabid},function(r){
 		
 		if(initalLoad){
 			var lo=_ge('load');if(lo)lo.parentNode.removeChild(lo);
@@ -314,7 +314,7 @@ function iin(){
 		winid=window.id;
 		chrome.tabs.getSelected(winid, function(tab){
 			tabid=tab.id;
-			chrome.tabs.sendRequest(tabid,{justOpened:true,vidDropShadow:localStorage['vidDropShadow']=='true'},function(r){});
+			chrome.tabs.sendMessage(tabid,{justOpened:true,vidDropShadow:localStorage['vidDropShadow']=='true'},function(r){});
 			getCurrentLayout();
 		})
 	})
