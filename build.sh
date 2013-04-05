@@ -29,6 +29,8 @@ rm -fr build/1.0/$PROG.*.zip
 echo "determining version number"
 vers=`cat manifest.json | awk -f build.awk`
 
+echo $vers
+
 cd build
 
 echo "Creating zip"
