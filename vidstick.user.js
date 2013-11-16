@@ -64,7 +64,6 @@ styleelem.appendChild(document.createTextNode(''+styles+''));
 var e=(document.getElementsByTagName('head')[0]||document.body);
 if(e){e.appendChild(styleelem);}
 
-
 var chkForNodesTimeout=0;
 function nodeInserted(){
 	clearTimeout(chkForNodesTimeout);
@@ -107,26 +106,26 @@ function checkForNodes(){
 	
 	*/
 	
-	var minHeight = 50;
+	var minHeight = 50, minRatio = 0.56;
 	
 	for(var x=0,l=nodes1.length;x<l;x++){
-		if(nodes1[x].clientHeight < minHeight) continue;
+		if(nodes1[x].clientHeight < minHeight || nodes1[x].clientWidth/nodes1[x].clientHeight < minRatio ) continue;
 		if(nodes1[x].parentNode.nodeName=="OBJECT") continue;
 		validNodes.push({typ:'flash',elm:nodes1[x]});
 	}
 	
 	for(var x=0,l=nodes1b.length;x<l;x++){
-		if(nodes1b[x].clientHeight < minHeight) continue;
+		if(nodes1b[x].clientHeight < minHeight|| nodes1b[x].clientWidth/nodes1b[x].clientHeight < minRatio ) continue;
 		validNodes.push({typ:'flash',elm:nodes1b[x]});
 	}
 	
 	for(var x=0,l=nodes2.length;x<l;x++){
-		if(nodes2[x].clientHeight < minHeight) continue;
+		if(nodes2[x].clientHeight < minHeight|| nodes2[x].clientWidth/nodes2[x].clientHeight < minRatio ) continue;
 		validNodes.push({typ:'html5',elm:nodes2[x]});
 	}
 	
 	for(var x=0,l=nodes3.length;x<l;x++){
-		if(nodes3[x].clientHeight < minHeight) continue;
+		if(nodes3[x].clientHeight < minHeight|| nodes3[x].clientWidth/nodes3[x].clientHeight < minRatio ) continue;
 		if(nodes3[x].getAttribute('aria-hidden') == 'true') continue;
 		validNodes.push({typ:'iframe',elm:nodes3[x]});
 	}
@@ -136,13 +135,26 @@ function checkForNodes(){
 		//now we will loop through the valid nodes and see if we really should control the parent node instead
 		for(var x=0,l=validNodes.length;x<l;x++){
 			myl=validNodes[x].elm;
-			tel=myl.parentNode;
-			while(myl.clientWidth >= tel.clientWidth && myl.clientHeight >= tel.clientHeight){
-				validNodes[x].elm = tel;
-				tel=tel.parentNode;
+			if(!myl.getAttribute('vidtapeorigprops')){
+				tel=myl.parentNode;
+				while(myl.clientWidth >= tel.clientWidth && myl.clientHeight >= tel.clientHeight){
+					validNodes[x].elm = tel;
+					if(tel.getAttribute('vidtapeorigprops'))break;
+					tel=tel.parentNode;
+				}
+				if(!tel.getAttribute('vidtapeorigprops')){
+					if(myl.nodeName=='VIDEO'){
+						//there is probably a controls div.. use the parent instead
+						tel=tel.parentNode;
+						if(myl.clientWidth >= tel.clientWidth && myl.clientHeight * 1.2 >= tel.clientHeight){
+							validNodes[x].elm = tel;//it probably has as larger height
+						}
+					}
+				}
 			}
 			myl=validNodes[x].elm;
-			myl.setAttribute("vidTapeOrigProps",JSON.stringify({w:myl.clientWidth,h:myl.clientHeight}));
+			if(!myl.getAttribute('vidtapeorigprops'))
+				myl.setAttribute("vidtapeorigprops",JSON.stringify({w:myl.clientWidth,h:myl.clientHeight}));
 		}
 		
 		//lets try to fix all the zindexes too... what a mess! (we just want to place a given element on top of all)... well this block sort of fixes youtube but not good enough
@@ -216,11 +228,12 @@ function affixVideo(i){
 	m.style.position='fixed';
 	m.style.top=(sp.y)+'px';
 	m.style.left=(sp.x)+'px';
+	m.style.zIndex = topFixed;
 //		if(_ge('watch7-main-container')){
 //			_ge('watch7-main-container').style.WebkitTransform='translate3d(0px, 0px, 1px)';
 //		}
 	//document.body.style.WebkitTransformStyle='preserve-3d';
-	m.style.WebkitTransform='translate3d(0px, 0px, -1px)';
+//	m.style.WebkitTransform='translate3d(0px, 0px, -1px)';
 	//m.style.WebkitTransformStyle='preserve-3d';
 	computeBoxShadow(m);
 	//-webkit-transform: translate3d(0px, 0px, 0px);
@@ -236,7 +249,7 @@ function unfixVideo(i, showRestored){
 	if(m.previousSibling && m.previousSibling.className=='_vidstickspacer'){
 		m.parentNode.removeChild(m.previousSibling);
 	}
-	var origProps=JSON.parse(m.getAttribute("vidTapeOrigProps"));
+	var origProps=JSON.parse(m.getAttribute("vidtapeorigprops"));
 	m.style.position='relative';
 	m.style.top='0px';
 	m.style.left='0px';
