@@ -106,26 +106,34 @@ function checkForNodes(){
 	
 	*/
 	
-	var minHeight = 50, minRatio = 0.56;
+	var minHeight = 50, minRatio = 0.56, maxRatio = 2.5;
 	
 	for(var x=0,l=nodes1.length;x<l;x++){
-		if(nodes1[x].clientHeight < minHeight || nodes1[x].clientWidth/nodes1[x].clientHeight < minRatio ) continue;
+		var ratio = nodes1[x].clientWidth/nodes1[x].clientHeight;
+		if(nodes1[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
 		if(nodes1[x].parentNode.nodeName=="OBJECT") continue;
 		validNodes.push({typ:'flash',elm:nodes1[x]});
 	}
 	
 	for(var x=0,l=nodes1b.length;x<l;x++){
-		if(nodes1b[x].clientHeight < minHeight|| nodes1b[x].clientWidth/nodes1b[x].clientHeight < minRatio ) continue;
+		var ratio = nodes1b[x].clientWidth/nodes1b[x].clientHeight;
+		if(nodes1b[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
 		validNodes.push({typ:'flash',elm:nodes1b[x]});
 	}
 	
 	for(var x=0,l=nodes2.length;x<l;x++){
-		if(nodes2[x].clientHeight < minHeight|| nodes2[x].clientWidth/nodes2[x].clientHeight < minRatio ) continue;
-		validNodes.push({typ:'html5',elm:nodes2[x]});
+		var ratio = nodes2[x].clientWidth/nodes2[x].clientHeight;
+		if(nodes2[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
+		if(nodes2[x].childNodes.length < 1 && nodes2[x].controls == false){
+			validNodes.push({typ:'html5',elm:nodes2[x].parentNode});//video element without child nodes, must have parent contained controlls, parent container that centers video, who knows what else
+		}else{
+			validNodes.push({typ:'html5-ctn',elm:nodes2[x]});//video node "contains controlls" as expected.  Neato!
+		}
 	}
 	
 	for(var x=0,l=nodes3.length;x<l;x++){
-		if(nodes3[x].clientHeight < minHeight|| nodes3[x].clientWidth/nodes3[x].clientHeight < minRatio ) continue;
+		var ratio = nodes3[x].clientWidth/nodes3[x].clientHeight;
+		if(nodes3[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
 		if(nodes3[x].getAttribute('aria-hidden') == 'true') continue;
 		validNodes.push({typ:'iframe',elm:nodes3[x]});
 	}
@@ -143,8 +151,8 @@ function checkForNodes(){
 					tel=tel.parentNode;
 				}
 				if(!tel.getAttribute('vidtapeorigprops')){
-					if(myl.nodeName=='VIDEO'){
-						//there is probably a controls div.. use the parent instead
+					if(validNodes[x].typ=='html5'){
+						//there is "probably" a controls div.. use the parent instead.. (in some cases this will be the parent of parent node)
 						tel=tel.parentNode;
 						if(myl.clientWidth >= tel.clientWidth && myl.clientHeight * 1.2 >= tel.clientHeight){
 							validNodes[x].elm = tel;//it probably has as larger height
@@ -154,7 +162,7 @@ function checkForNodes(){
 			}
 			myl=validNodes[x].elm;
 			if(!myl.getAttribute('vidtapeorigprops'))
-				myl.setAttribute("vidtapeorigprops",JSON.stringify({w:myl.clientWidth,h:myl.clientHeight}));
+				myl.setAttribute("vidtapeorigprops",JSON.stringify({w:myl.clientWidth,h:myl.clientHeight}));//,typ:validNodes[x].typ
 		}
 		
 		//lets try to fix all the zindexes too... what a mess! (we just want to place a given element on top of all)... well this block sort of fixes youtube but not good enough
