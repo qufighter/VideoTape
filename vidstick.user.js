@@ -106,7 +106,7 @@ function checkForNodes(){
 	
 	*/
 	
-	var minHeight = 50, minRatio = 0.56, maxRatio = 2.5;
+	var minHeight = 100, minRatio = 0.56, maxRatio = 2.5;
 	
 	for(var x=0,l=nodes1.length;x<l;x++){
 		var ratio = nodes1[x].clientWidth/nodes1[x].clientHeight;
