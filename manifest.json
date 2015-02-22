@@ -5,7 +5,7 @@
    "content_scripts": [ {
       "js": [ "Cr_min.js", "vidstick.user.js" ],
       "run_at": "document_idle",
-      "matches": [ "http://*/*", "https://*/*" ]
+      "matches": [ "<all_urls>" ]
    } ],
    "page_action": {
       "default_icon": {
@@ -26,7 +26,7 @@
            "64": "images/icon64.png",
           "128": "images/icon128.png" },
    "permissions": [
-          "*://*/*","tabs"
+          "<all_urls>","tabs"
         ],
-   "version": "0.0.1.9"
+   "version": "0.0.2.0"
 }

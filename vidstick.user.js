@@ -183,15 +183,14 @@ function checkForNodes(){
 //		}
 		
 		//console.log(validNodes);
-		chrome.runtime.sendMessage({enable:true}, function(response){
-			
-		});
+		if(!wasEnabled)
+			chrome.runtime.sendMessage({enable:true}, function(response){});
 		if(tabid)
 			chrome.runtime.sendMessage({updatePreview:true},function(r){});
 			
 		wasEnabled=true;
 	}else{
-		if(wasEnabled) chrome.runtime.sendMessage({disable:true}, function(response){});
+		if(wasEnabled) chrome.runtime.sendMessage({disable:true}, function(response){wasEnabled=false;});
 	}
 }
 
@@ -304,6 +303,18 @@ function(request, sender, sendResponse) {
 		m.style.height=(request.h)+'px';
 		m.style.width=(request.w)+'px';
 		computeBoxShadow(m);
+		// if( validNodes[i].typ == 'iframe' ){
+		// 	console.log('iframe');
+		// 	if(m.nodeName == 'IFRAME'){
+		// 		console.log('IFRAME');
+		// 		if( m.contentDocument ){
+		// 			console.log(m.contentDocument);
+		// 			if( m.contentDocument.body ){
+		// 				console.log(m.contentDocument.body);
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}else if (request.fixVideo){
 		var m=affixVideo(request.fixVideo-1);
 		sendResponse({src:m.src});
