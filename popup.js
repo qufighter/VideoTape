@@ -288,6 +288,7 @@ function getCurrentLayout(){
 			if(r.elm[i].fixed){
 				cl='videofixed';
 				if(snapshotsEnabled){
+					bcvs.clearRect(x,y-scrollDelta,w,h);
 					bcvs.drawImage(lastSnapImage,r.elm[i].x,r.elm[i].y,r.elm[i].w,r.elm[i].h,x,y,w,h);
 				}
 			}
