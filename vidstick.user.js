@@ -65,7 +65,8 @@ var e=(document.getElementsByTagName('head')[0]||document.body);
 if(e){e.appendChild(styleelem);}
 
 var chkForNodesTimeout=0;
-function nodeInserted(){
+function nodeInserted(e){
+	if(e.relatedNode.querySelectorAll('embed,object,video,iframe').length < 1) return;
 	clearTimeout(chkForNodesTimeout);
 	chkForNodesTimeout=setTimeout(checkForNodes,250);
 }
