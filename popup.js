@@ -101,12 +101,12 @@ function ctx_fix_video(ev){
 }
 
 function vidContextMenu(ev){
-	
+
 	var elm=getEventTarget(ev);
 	ctx_cur_video_id=videoElmToIdNum(elm);
-	
+
 	clearContextMenu();
-	
+
 	var ctxItms=[];
 	//ctxItms.push(Cr.elm('a',{events:[['click',ctx_unfix_video]]},[Cr.txt('Hello')]));
 	if(elm.className=='videofixed'){
@@ -123,11 +123,11 @@ function vidContextMenu(ev){
 	var xpos=ev.pageX;
 	if(ev.pageX > document.body.clientWidth -100)xpos-=100;
 	Cr.elm('div',{id:'contextMenu',style:'position:absolute;top:'+ev.pageY+'px;left:'+xpos+'px;'},ctxItms,document.body);
-	
+
 	return preventEventDefault(ev);
 }
 
-var isdrag=false,scdrag=false,bardrag=false,isresize=false,d_x=0,d_y=0,ds_x=0,ds_y=0;
+var isdrag=false,bgdrag=false,scdrag=false,bardrag=false,isresize=false,d_x=0,d_y=0,ds_x=0,ds_y=0;
 function vmdown(ev){
 	if(ev.which != 1) return;
 	clear_snapshot();
@@ -138,6 +138,13 @@ function vmdown(ev){
 	ds_x=d_x,ds_y=d_y;
 	return preventEventDefault(ev);
 }
+function vmdn(ev){//to be confused with the above function
+	if( ev.target.id == 'miniscreen' ){
+		bgdrag=true;
+		d_x=ev.pageX,d_y=ev.pageY;
+	}
+}
+
 function scrollbarclick(ev){
 	bardrag=getEventTarget(ev),
 	mmf(ev);
@@ -154,6 +161,7 @@ function vmup(ev){
 	bardrag=false;
 	scdrag=false;
 	isresize=false;
+	bgdrag=false;
 
 	if(ev.which == 2){
 		chrome.tabs.sendMessage(tabid,{removeVideo:videoElmToIdNum(elm)},function(r){
@@ -248,6 +256,12 @@ function mmf(ev){
 		_ge('scrolldrag').style.top=ny+'px';
 		chrome.tabs.sendMessage(tabid,{scrToYpcnt:(ny/maxSc)},function(r){});
 		return preventEventDefault(ev);
+	}else if(bgdrag){
+		var position = (ev.pageY-_ge('msbox').offsetTop) / _ge('miniscreen').clientHeight,
+		    yamt = ev.pageY-d_y;
+		d_x=ev.pageX,d_y=ev.pageY;
+		chrome.tabs.sendMessage(tabid,{scrToYpx:(scrlY - yamt)},function(r){});
+		return preventEventDefault(ev);
 	}
 }
 
@@ -255,26 +269,29 @@ function mwheel(ev){
 	chrome.tabs.sendMessage(tabid,{mwheel:ev.wheelDelta},function(r){});
 }
 
+var docHei=0,winHei=0,scrlY=0;
+
 function getCurrentLayout(){
 	chrome.tabs.sendMessage(tabid,{getLayout:true,tabid:tabid},function(r){
-		
+		docHei = r.win.docHei;
+		scrlY = r.win.scry;
 		if(initalLoad){
 			var lo=_ge('load');if(lo)lo.parentNode.removeChild(lo);
 		}
-		var scrollDelta = Math.ceil((r.win.scry - snapshotScrollY) * scaleFactor);
+		var scrollDelta = Math.ceil((scrlY - snapshotScrollY) * scaleFactor);
 
 		r.win.w=Math.ceil(r.win.w*scaleFactor);
-		r.win.h=Math.ceil(r.win.h*scaleFactor);
+		winHei=Math.ceil(r.win.h*scaleFactor);
 		
 		_ge('minican').width=r.win.w;
-		_ge('minican').height=r.win.h;
+		_ge('minican').height=winHei;
 		_ge('minican').style.width=r.win.w+'px';
-		_ge('minican').style.height=r.win.h+'px';
+		_ge('minican').style.height=winHei+'px';
 		var bcvs=_ge('minican').getContext('2d');
 		if(snapshotsEnabled){
 			bcvs.drawImage(lastSnapImage,0,0,lastSnapImage.width-snapshotCropRight,lastSnapImage.height,0,-scrollDelta,_ge('minican').width-10,_ge('minican').height);
 		}else{
-			bcvs.clearRect(0,0,r.win.w,r.win.h);
+			bcvs.clearRect(0,0,r.win.w,winHei);
 		}
 		bcvs.fillStyle = "rgba(0,0,0,1.0)";//croshair
 
@@ -301,19 +318,19 @@ function getCurrentLayout(){
 										 },[Cr.elm('div',{class:'resize-se'},[])])
 			);
 
-			var percent = (r.elm[i].y + r.win.scry + (r.elm[i].h * 0.5)) /  r.win.docHei;
-			bcvs.fillRect(r.win.w-10, Math.round(percent*r.win.h)  , 10, 1);
+			var percent = (r.elm[i].y + scrlY + (r.elm[i].h * 0.5)) /  docHei;
+			bcvs.fillRect(r.win.w-10, Math.round(percent*winHei)  , 10, 1);
 		}
 		var ms=_ge('miniscreen');
 		if(ms)_ge('msbox').removeChild(ms);
-		ms=Cr.elm('div',{'id':'miniscreen','style':'width:'+r.win.w+'px;height:'+r.win.h+'px;'},childs,_ge('msbox'));
+		ms=Cr.elm('div',{'id':'miniscreen','style':'width:'+r.win.w+'px;height:'+winHei+'px;'},childs,_ge('msbox'));
 
 		if(!scdrag){
-			_ge('scrolldrag').style.top=Math.round(r.win.scrypcnt*(r.win.h-_ge('scrolldrag').clientHeight))+'px';
-			_ge('scrollhold').style.height=r.win.h+"px";
+			_ge('scrolldrag').style.top=Math.round(r.win.scrypcnt*(winHei-_ge('scrolldrag').clientHeight))+'px';
+			_ge('scrollhold').style.height=winHei+"px";
 		}
 		
-		snapshot(r.win.scry);
+		snapshot(scrlY);
 	});
 }
 
@@ -328,7 +345,10 @@ function iin(){
 	
 	document.body.addEventListener('mousemove',mmf);
 	document.body.addEventListener('mouseup',vmup);
+	document.body.addEventListener('mousedown',vmdn);
+
 	window.addEventListener('mousewheel',mwheel);
+
 	chrome.windows.getCurrent(function(window){
 		winid=window.id;
 		chrome.tabs.getSelected(winid, function(tab){

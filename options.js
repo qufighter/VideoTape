@@ -25,7 +25,7 @@ function save_options() {
   	}
 	
 	
-		for( i in pAdvOptions){
+	for( i in pAdvOptions){
   		if(typeof(pAdvOptions[i].def)=='boolean')
   			localStorage[i] = document.getElementById(i).checked;
   		else

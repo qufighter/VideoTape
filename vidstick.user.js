@@ -283,6 +283,8 @@ function(request, sender, sendResponse) {
 		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response});
 	}else if (typeof(request.scrToYpcnt)!='undefined'){
 		window.scrollTo(0,Math.round(request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight())));
+	}else if (typeof(request.scrToYpx)!='undefined'){
+		window.scrollTo(0,request.scrToYpx);
 	}else if (request.mwheel){
 		window.scrollBy(0,-request.mwheel*0.5);
 	}else if (request.moveVideo){
