@@ -146,7 +146,7 @@ function checkForNodes(){
 			myl=validNodes[x].elm;
 			if(!myl.getAttribute('vidtapeorigprops')){
 				tel=myl.parentNode;
-				while(myl.clientWidth >= tel.clientWidth && myl.clientHeight >= tel.clientHeight){
+				while(myl.scrollWidth >= tel.scrollWidth && myl.scrollHeight >= tel.scrollHeight){
 					validNodes[x].elm = tel;
 					if(tel.getAttribute('vidtapeorigprops'))break;
 					tel=tel.parentNode;
@@ -154,16 +154,22 @@ function checkForNodes(){
 				if(!tel.getAttribute('vidtapeorigprops')){
 					if(validNodes[x].typ=='html5'){
 						//there is "probably" a controls div.. use the parent instead.. (in some cases this will be the parent of parent node)
+						// along the way up though, if we look at sibling nodes of elm, we may find elements that appear to be controls
+						// and we know once we have the controls we may not need to traverse much farther
+						// the ratio here is a hack
+						// while the container should have a client height it does not always seem to have one... and in this case we may again look to parentNode
 						tel=tel.parentNode;
-						if(myl.clientWidth >= tel.clientWidth && myl.clientHeight * 1.2 >= tel.clientHeight){
+						while(myl.scrollWidth >= tel.scrollWidth && myl.scrollHeight * 1.2 >= tel.scrollHeight){
 							validNodes[x].elm = tel;//it probably has as larger height
+							if(tel.getAttribute('vidtapeorigprops'))break;
+							tel=tel.parentNode;
 						}
 					}
 				}
 			}
 			myl=validNodes[x].elm;
 			if(!myl.getAttribute('vidtapeorigprops'))
-				myl.setAttribute("vidtapeorigprops",JSON.stringify({w:myl.clientWidth,h:myl.clientHeight}));//,typ:validNodes[x].typ
+				myl.setAttribute("vidtapeorigprops",JSON.stringify({w:myl.scrollWidth,h:myl.scrollHeight}));//,typ:validNodes[x].typ
 		}
 		
 		//lets try to fix all the zindexes too... what a mess! (we just want to place a given element on top of all)... well this block sort of fixes youtube but not good enough
@@ -190,6 +196,8 @@ function checkForNodes(){
 			chrome.runtime.sendMessage({updatePreview:true},function(r){});
 			
 		wasEnabled=true;
+
+		//console.log('video tape valid nodes', validNodes);
 	}else{
 		if(wasEnabled) chrome.runtime.sendMessage({disable:true}, function(response){wasEnabled=false;});
 	}
