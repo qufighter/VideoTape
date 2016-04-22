@@ -45,15 +45,7 @@ function save_options() {
 		if(appleIcon)iconPath='apple/';
 		chrome.browserAction.setIcon({path:chrome.extension.getURL(iconPath+'icon19.png')});//update icon (to be configurable)
 	}
-	
-	if(typeof(localStorage["usageStatistics"])=='undefined')localStorage["usageStatistics"]=false;
-	if(localStorage["usageStatistics"]=='true' && !navigator.doNotTrack){
-		localStorage.removeItem("feedbackOptOut");
-	}else{
-		localStorage.feedbackOptOut = "true";
-	}
-	
-	
+
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
   status.innerHTML = "Options Saved.";

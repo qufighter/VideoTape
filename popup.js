@@ -188,7 +188,7 @@ function vmup(ev){
 		elm.className='videofixed';
 		chrome.tabs.sendMessage(tabid,{fixVideo:videoElmToIdNum(elm)},function(r){
 			getCurrentLayout();
-			if(localStorage["shareVideos"]){
+			if(localStorage["reallyShareVideos"]){
 				//examine video SRC here and record this being a good video....
 				var vURL=false;
 				var vTitle=false;

@@ -13,11 +13,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	}
 });
 
-if(typeof(localStorage["usageStatistics"])=='undefined')localStorage["usageStatistics"]=true;
-if(typeof(localStorage["shareVideos"])=='undefined')localStorage["shareVideos"]=true;
+if(typeof(localStorage["reallyShareVideos"])=='undefined')localStorage["reallyShareVideos"]=false;
 
-if(localStorage["usageStatistics"]=='true' && !navigator.doNotTrack){
-	localStorage.removeItem("feedbackOptOut");
-}else{
-	localStorage.feedbackOptOut = "true";
-}
+localStorage.removeItem("usageStatistics");
+localStorage.removeItem("feedbackOptOut");
+localStorage.removeItem("shareVideos");
