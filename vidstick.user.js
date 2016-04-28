@@ -139,19 +139,47 @@ function checkForNodes(){
 		validNodes.push({typ:'iframe',elm:nodes3[x]});
 	}
 	
+	var oel, myl, tel, gel, props, lastAboveCnt, aboveCtr = 0; // reset counter
+
 	if(validNodes.length > 0){
 		
 		//now we will loop through the valid nodes and see if we really should control the parent node instead
 		for(var x=0,l=validNodes.length;x<l;x++){
-			myl=validNodes[x].elm;
-			if(!myl.getAttribute('vidtapeorigprops')){
+			oel=myl=gel=tel=validNodes[x].elm;
+
+			props = myl.getAttribute('vidtapeorigprops');
+
+			lastAboveCnt = myl.getAttribute('vidtapeabovecount') - 0; // how many elements above is our final element
+
+			while(!props && aboveCtr < lastAboveCnt){
+				tel=myl.parentNode;
+				props = tel.getAttribute('vidtapeorigprops');
+
+				if(myl.scrollWidth >= tel.scrollWidth && myl.scrollHeight >= tel.scrollHeight){
+					gel = tel;
+				}
+
+				aboveCtr++;
+			}
+
+			if( props && gel != tel ){
+				console.log('pretty odd, we were seeking ', tel, ' but on the way found ', gel,' was a better match - but not sure why we are checking');
+			}
+			validNodes[x].elm = tel;
+
+			if(!props){
+
+				// if html5 we might try seeking controlls first, since aspect ratio of video may not match player
+
 				tel=myl.parentNode;
 				while(myl.scrollWidth >= tel.scrollWidth && myl.scrollHeight >= tel.scrollHeight){
-					validNodes[x].elm = tel;
-					if(tel.getAttribute('vidtapeorigprops'))break;
+					validNodes[x].elm = gel = tel;
 					tel=tel.parentNode;
 				}
-				if(!tel.getAttribute('vidtapeorigprops')){
+				// not just class but more attributes might match
+				//$$('[class*=play],[class*=pause],[class*=mute],[class*=volume],[class*=fullscreen],[class*=time],[class*=duration]')
+
+				if( gel == myl ){ // hmm not getting anywhere
 					if(validNodes[x].typ=='html5'){
 						//there is "probably" a controls div.. use the parent instead.. (in some cases this will be the parent of parent node)
 						// along the way up though, if we look at sibling nodes of elm, we may find elements that appear to be controls
@@ -159,7 +187,7 @@ function checkForNodes(){
 						// the ratio here is a hack
 						// while the container should have a client height it does not always seem to have one... and in this case we may again look to parentNode
 						tel=tel.parentNode;
-						while(myl.scrollWidth >= tel.scrollWidth && myl.scrollHeight * 1.2 >= tel.scrollHeight){
+						while(myl.scrollWidth >= tel.scrollWidth && myl.scrollHeight * 1.2 >= tel.scrollHeight){ // we should only resume size search once we know we have a good start point...
 							validNodes[x].elm = tel;//it probably has as larger height
 							if(tel.getAttribute('vidtapeorigprops'))break;
 							tel=tel.parentNode;
@@ -167,9 +195,11 @@ function checkForNodes(){
 					}
 				}
 			}
+
 			myl=validNodes[x].elm;
 			if(!myl.getAttribute('vidtapeorigprops'))
 				myl.setAttribute("vidtapeorigprops",JSON.stringify({w:myl.scrollWidth,h:myl.scrollHeight}));//,typ:validNodes[x].typ
+			oel.setAttribute('vidtapeabovecount', aboveCtr);
 		}
 		
 		//lets try to fix all the zindexes too... what a mess! (we just want to place a given element on top of all)... well this block sort of fixes youtube but not good enough
