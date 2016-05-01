@@ -256,7 +256,7 @@ function resetOrigionalProperties(validNode){
 		propShortKey = cssPropsWeModify[prop];
 		if( typeof origProps[propShortKey] != 'undefined' ) validNode.style[prop] = origProps[propShortKey];
 	}
-	validNode.removeAttribute("vidtapeorigprops")
+	validNode.removeAttribute("vidtapeorigprops");
 	validNode.querySelector('[vidtapeabovecount]').removeAttribute('vidtapeabovecount');
 }
 
@@ -323,6 +323,7 @@ function affixVideo(m){
 		m.parentNode.insertBefore(spa,m);
 		Cr.addListeners();
 	}
+	m = m.querySelector('[vidtapeabovecount]');
 	return m;
 }
 function unfixVideo(m, showRestored){
@@ -360,9 +361,8 @@ function(request, sender, sendResponse) {
 	}else if (request.mwheel){
 		window.scrollBy(0,-request.mwheel*0.5);
 	}else if (request.moveVideo){
-		i=request.moveVideo;
-		m = videoNodeAt(request, i);
-		if( !m ) return; // send response ?
+		m = videoNodeAt(request, request.moveVideo);
+		if( !m ) return sendResponse({});
 		var ith=10;
 		var oth=30;
 		if(request.x < ith && request.x > -oth)request.x=0;
@@ -374,13 +374,12 @@ function(request, sender, sendResponse) {
 			m.style.zIndex=++topFixed;
 		lasMoveVideo=i;
 	}else if (request.sizeVideo){
-		i=request.sizeVideo;
-		m =  videoNodeAt(request, i);
-		if( !m ) return; // send response ?
+		m =  videoNodeAt(request, request.sizeVideo);
+		if( !m ) return sendResponse({});
 		m.style.height=(request.h)+'px';
 		m.style.width=(request.w)+'px';
 		computeBoxShadow(m);
-		// if( validNodes[i].typ == 'iframe' ){
+		// if( validNodes[request.sizeVideo-1].typ == 'iframe' ){
 		// 	console.log('iframe');
 		// 	if(m.nodeName == 'IFRAME'){
 		// 		console.log('IFRAME');
@@ -393,21 +392,18 @@ function(request, sender, sendResponse) {
 		// 	}
 		// }
 	}else if (request.fixVideo){
-		i = request.fixVideo;
-		m =  videoNodeAt(request, i);
-		if( !m ) return; // send response ?
+		m =  videoNodeAt(request, request.fixVideo);
+		if( !m ) return sendResponse({});
 		m=affixVideo(m);
-		sendResponse({src:m.src});
+		sendResponse({src:m?m.src:''});
 	}else if (request.unfixVideo){
-		i = request.unfixVideo;
-		m =  videoNodeAt(request, i);
-		if( !m ) return; // send response ?
+		m =  videoNodeAt(request, request.unfixVideo);
+		if( !m ) return sendResponse({});
 		unfixVideo(m, request.showRestored);
 		sendResponse({});
 	}else if (request.domDetachVideo){
-		i=request.domDetachVideo;
-		m =  videoNodeAt(request, i);
-		if( !m ) return; // send response ?
+		m =  videoNodeAt(request, request.domDetachVideo);
+		if( !m ) return sendResponse({});
 		if(m.style.position!='fixed')affixVideo(m);
 		m.setAttribute('domDetached',true);
 		if(request.attachToTop)
@@ -415,9 +411,8 @@ function(request, sender, sendResponse) {
 		else
 			document.body.appendChild(m.parentNode.removeChild(m));
 	}else if (request.removeVideo){
-		i=request.removeVideo;
-		m =  videoNodeAt(request, i);
-		if( !m ) return; // send response ?
+		m =  videoNodeAt(request, request.removeVideo);
+		if( !m ) return sendResponse({});
 		m.parentNode.removeChild(m);
 		checkForNodes();
 		sendResponse({});
