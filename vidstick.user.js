@@ -257,7 +257,8 @@ function resetOrigionalProperties(validNode){
 		if( typeof origProps[propShortKey] != 'undefined' ) validNode.style[prop] = origProps[propShortKey];
 	}
 	validNode.removeAttribute("vidtapeorigprops");
-	validNode.querySelector('[vidtapeabovecount]').removeAttribute('vidtapeabovecount');
+	validNode = validNode.querySelector('[vidtapeabovecount]') || validNode;
+	validNode.removeAttribute('vidtapeabovecount');
 }
 
 setTimeout(function(){
@@ -323,7 +324,7 @@ function affixVideo(m){
 		m.parentNode.insertBefore(spa,m);
 		Cr.addListeners();
 	}
-	m = m.querySelector('[vidtapeabovecount]');
+	m = m.querySelector('[vidtapeabovecount]') || m;
 	return m;
 }
 function unfixVideo(m, showRestored){
