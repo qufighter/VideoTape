@@ -2,7 +2,7 @@ videoTapeBlock: {
 if(document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
 var tabid=false;
 var vidDropShadow=false;
-var cssPropsWeModify={'width':'w', 'height':'h', 'top':'t', 'left':'l', 'zIndex':'z', 'position':'p', 'WebkitTransform':'wkt', 'boxShadow':'bxs' }; // a loop added to program
+var cssPropsWeModify={'width':'w', 'height':'h', 'top':'t', 'left':'l', 'zIndex':'z', 'position':'p', 'boxShadow':'boxShadow' }; // a loop added to program
 function _ge(g){
 	return document.getElementById(g);
 }
@@ -154,22 +154,20 @@ function checkForNodes(){
 			lastAboveCnt = myl.getAttribute('vidtapeabovecount') - 0; // how many elements above is our final element
 			aboveCtr = 0;
 
-			console.log( 'got lastAboveCnt', lastAboveCnt);
-
 			while(!props && aboveCtr < lastAboveCnt){
 				tel=tel.parentNode;
 				props = tel.getAttribute('vidtapeorigprops');
 
-				if( isContainerProxyFor(elType, tel, myl) ){
-					gel = tel;
-				}
+				// if( isContainerProxyFor(elType, tel, myl) ){
+				// 	gel = tel;
+				// }
 
 				aboveCtr++;
 			}
 
-			if( props && gel != tel ){
-				console.log('pretty odd, we were seeking ', tel, ' but on the way found ', gel,' was a better match - but not sure why we are checking');
-			}
+			// if( props && gel != tel ){
+			// 	console.log('pretty odd, we were seeking ', tel, ' but on the way found ', gel,' was a better match - but not sure why we are checking');
+			// }
 
 			if( props ){
 				validNodes[x].elm = tel;
@@ -179,7 +177,7 @@ function checkForNodes(){
 				// if we unfix a video though... it should reset and re-detection may occur
 			}
 
-			console.log('has props', props);
+			//console.log('has props', props);
 
 			if(!props){
 				aboveCtr = 0;
@@ -194,41 +192,21 @@ function checkForNodes(){
 
 					//console.log(aboveCtr, myl.scrollWidth , tel.scrollWidth , myl.scrollHeight, tel.scrollHeight);
 					if(elType=='html5'){
+						// not just class but more attributes might match
 						foundControlls = gel.querySelectorAll('[class*=play],[class*=pause],[class*=mute],[class*=volume],[class*=fullscreen],[class*=time],[class*=duration]');
 						if( foundControlls.length > 3 ){
-							console.log('found controls', foundControlls);
+							//console.log('found controls', foundControlls);
 							tel = null; // dont advance further than necessary when seeking containers
 						}
 					}
 				}
-				// not just class but more attributes might match
-				//$$('[class*=play],[class*=pause],[class*=mute],[class*=volume],[class*=fullscreen],[class*=time],[class*=duration]')
-
-				// if( gel == myl ){ // hmm not getting anywhere
-				// 	console.log('true to not getting anywhere!')
-				// 	if(validNodes[x].typ=='html5'){
-				// 		//there is "probably" a controls div.. use the parent instead.. (in some cases this will be the parent of parent node)
-				// 		// along the way up though, if we look at sibling nodes of elm, we may find elements that appear to be controls
-				// 		// and we know once we have the controls we may not need to traverse much farther
-				// 		// the ratio here is a hack
-				// 		// while the container should have a client height it does not always seem to have one... and in this case we may again look to parentNode
-
-				// 		// tel=tel.parentNode; // this is sort of alredy set above
-				// 		while( isContainerProxyFor(elType, tel, myl) ){ // we should only resume size search once we know we have a good start point...
-				// 			validNodes[x].elm = gel = tel;//it probably has as larger height
-				// 			aboveCtr++;
-				// 			//if(tel.getAttribute('vidtapeorigprops'))break;
-				// 			tel=tel.parentNode;
-				// 		}
-				// 	}
-				// }
 			}
 
 			myl=validNodes[x].elm;
 			if(!myl.getAttribute('vidtapeorigprops'))
 				myl.setAttribute("vidtapeorigprops",JSON.stringify(getCssPropsWeModify(myl)));//,typ:validNodes[x].typ // {w:myl.scrollWidth,h:myl.scrollHeight}
 			oel.setAttribute('vidtapeabovecount', aboveCtr);
-			console.log( 'setting aboveCtr', aboveCtr);
+			//console.log( 'setting aboveCtr', aboveCtr);
 		}
 		
 		//console.log(validNodes);
@@ -250,7 +228,7 @@ function getCssPropsWeModify(node){
 	var prop, propShortKey;
 	for( prop in cssPropsWeModify ){
 		robj[cssPropsWeModify[prop]] = node.style[prop];
-	} // NOTE: we need to reset style.position no matter what, so adding tests in this loop should take care
+	} // NOTE: we need to reset style.position no matter what, so if adding conditions in this loop should take care to set robj[cssPropsWeModify['position']]=""; afterwards
 	return robj;
 }
 
@@ -319,13 +297,12 @@ function computeBoxShadow(m){
 	if(vidDropShadow)m.style.boxShadow=Math.round(((((m.style.left.replace('px','')-0+(m.clientWidth*0.5)))/getWindowWidth())-0.5)*-7)+'px 5px 5px #555';
 }
 
-function affixVideo(i){
+function affixVideo(m){
 	document.body.style.overflow="scroll"; // in case video ever end up outside of window
-	var m = validNodes[i].elm;
-	if( !m || !m.getAttribute("vidtapeorigprops") ){  console.log('problem affixing');return m;} // TODO: this validation should apply elsewhere, earlier, and hopefully once
 
-	// quite arguably, rather than looking at vidtapeorigprops for values. NOW is the time we should SET those properties (before we make changes) since the "orig" props may haev changed
-
+	// back up current properties
+	m.setAttribute("vidtapeorigprops",JSON.stringify(getCssPropsWeModify(m)));
+	// EVERY property we modfiy needs to be tracked in cssPropsWeModify{}
 	var sp=getFixedOffset(m);
 	m.style.width=(m.scrollWidth)+'px';
 	m.style.height=(m.scrollHeight)+'px';
@@ -348,9 +325,7 @@ function affixVideo(i){
 	}
 	return m;
 }
-function unfixVideo(i, showRestored){
-	var m = validNodes[i].elm;
-	if( !m || !m.getAttribute("vidtapeorigprops") ){  console.log('problem unfixing');return m;}
+function unfixVideo(m, showRestored){
 	if(m.previousSibling && m.previousSibling.className=='_videotapespacer'){
 		m.parentNode.removeChild(m.previousSibling);
 	}
@@ -360,13 +335,20 @@ function unfixVideo(i, showRestored){
 	return m;
 }
 
+function videoNodeAt(req, i){
+	var m = validNodes[i-1].elm;
+	if( !m || !m.getAttribute("vidtapeorigprops") ){  console.log('vidsbee.videotape.problem ',req,' nodeProp> ',m?m.getAttribute("vidtapeorigprops"):'falsey','please report the URL');return false;};
+	return m;
+}
+
 if(!document.body.getAttribute('chromeextension:video-tape'))chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
+	var m, i;
 	if (request.getLayout){
 		tabid = request.tabid;
 		var response=[];
-		for(var i=0,l=validNodes.length;i<l;i++){
-			var m = validNodes[i].elm;
+		for(i=0,l=validNodes.length;i<l;i++){
+			m = validNodes[i].elm;
 			var sp=getFixedOffset(m);
 			response.push({x:sp.x,y:sp.y,w:m.scrollWidth,h:m.scrollHeight,fixed:m.style.position=='fixed'});
 		}	
@@ -378,8 +360,9 @@ function(request, sender, sendResponse) {
 	}else if (request.mwheel){
 		window.scrollBy(0,-request.mwheel*0.5);
 	}else if (request.moveVideo){
-		var i=request.moveVideo-1;
-		var m = validNodes[i].elm;
+		i=request.moveVideo;
+		m = videoNodeAt(request, i);
+		if( !m ) return; // send response ?
 		var ith=10;
 		var oth=30;
 		if(request.x < ith && request.x > -oth)request.x=0;
@@ -391,8 +374,9 @@ function(request, sender, sendResponse) {
 			m.style.zIndex=++topFixed;
 		lasMoveVideo=i;
 	}else if (request.sizeVideo){
-		var i=request.sizeVideo-1;
-		var m = validNodes[i].elm;
+		i=request.sizeVideo;
+		m =  videoNodeAt(request, i);
+		if( !m ) return; // send response ?
 		m.style.height=(request.h)+'px';
 		m.style.width=(request.w)+'px';
 		computeBoxShadow(m);
@@ -409,23 +393,31 @@ function(request, sender, sendResponse) {
 		// 	}
 		// }
 	}else if (request.fixVideo){
-		var m=affixVideo(request.fixVideo-1);
+		i = request.fixVideo;
+		m =  videoNodeAt(request, i);
+		if( !m ) return; // send response ?
+		m=affixVideo(m);
 		sendResponse({src:m.src});
 	}else if (request.unfixVideo){
-		unfixVideo(request.unfixVideo-1, request.showRestored);
+		i = request.unfixVideo;
+		m =  videoNodeAt(request, i);
+		if( !m ) return; // send response ?
+		unfixVideo(m, request.showRestored);
 		sendResponse({});
 	}else if (request.domDetachVideo){
-		var i=request.domDetachVideo-1;
-		var m = validNodes[i].elm;
-		if(m.style.position!='fixed')affixVideo(i);
+		i=request.domDetachVideo;
+		m =  videoNodeAt(request, i);
+		if( !m ) return; // send response ?
+		if(m.style.position!='fixed')affixVideo(m);
 		m.setAttribute('domDetached',true);
 		if(request.attachToTop)
 			document.body.insertBefore(m.parentNode.removeChild(m),document.body.firstChild);
 		else
 			document.body.appendChild(m.parentNode.removeChild(m));
 	}else if (request.removeVideo){
-		var i=request.removeVideo-1;
-		var m = validNodes[i].elm;
+		i=request.removeVideo;
+		m =  videoNodeAt(request, i);
+		if( !m ) return; // send response ?
 		m.parentNode.removeChild(m);
 		checkForNodes();
 		sendResponse({});
