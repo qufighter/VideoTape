@@ -265,7 +265,22 @@ setTimeout(function(){
 	checkForNodes();
 	document.body.addEventListener('DOMNodeInserted', nodeInserted, false);
 	document.body.addEventListener('DOMNodeRemoved', nodeInserted, false);
+	document.addEventListener('webkitfullscreenchange', checkFullscreen, false);//fullscreenchange
 }, 1230);
+
+var isFullscreen=false;
+function checkFullscreen(){
+	isFullscreen=!isFullscreen;
+	console.log('isFullscreen',isFullscreen);
+	if( isFullscreen ){
+		// window.screen
+		// Screen {availWidth: 2560, availHeight: 1400, width: 2560, height: 1440, colorDepth: 24…}
+		// m.scrollWidth == window.screen.width // then video is fullscreen and we should unapply our styles, possibly unfixing the video
+		// todo track which validNodes are fixed position, if tracking on validNodes directly, see for assignment during list generation		response.push({x:sp.x,y:sp.y,w:m.scrollWidth,h:m.scrollHeight,fixed:m.style.position=='fixed'});
+	}else{
+		// reaffix ?
+	}
+}
 
 function viewScrolled(){
 	if(tabid)
