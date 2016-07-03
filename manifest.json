@@ -25,6 +25,9 @@
            "48": "images/icon48.png",
            "64": "images/icon64.png",
           "128": "images/icon128.png" },
+   "web_accessible_resources": [
+     "vidstick.user.css"
+   ],
    "permissions": [
           "<all_urls>","tabs"
         ],
