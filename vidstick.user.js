@@ -206,6 +206,7 @@ function checkForNodes(){
 			if(!myl.getAttribute('vidtapeorigprops'))
 				myl.setAttribute("vidtapeorigprops",JSON.stringify(getCssPropsWeModify(myl)));//,typ:validNodes[x].typ // {w:myl.scrollWidth,h:myl.scrollHeight}
 			oel.setAttribute('vidtapeabovecount', aboveCtr);
+			validNodes[x].fixed = myl.style.position=='fixed';
 			//console.log( 'setting aboveCtr', aboveCtr);
 		}
 		
@@ -271,8 +272,17 @@ setTimeout(function(){
 var isFullscreen=false;
 function checkFullscreen(){
 	isFullscreen=!isFullscreen;
-	console.log('isFullscreen',isFullscreen);
+	var i,m;
+	console.log('isFullscreen',isFullscreen); // we still probably may not work right in multi screen multi res setup, unless window.screen.width alwyas respects the windows own screen's size
 	if( isFullscreen ){
+		for(i=0,l=validNodes.length;i<l;i++){
+			if( validNodes[i].fixed ){
+				m = validNodes[i].elm;
+				if( m.scrollWidth == window.screen.width &&  m.scrollHeight == window.screen.height ){
+					unfixVideo(m, true);
+				}
+			}
+		}
 		// window.screen
 		// Screen {availWidth: 2560, availHeight: 1400, width: 2560, height: 1440, colorDepth: 24…}
 		// m.scrollWidth == window.screen.width // then video is fullscreen and we should unapply our styles, possibly unfixing the video
