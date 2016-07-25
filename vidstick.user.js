@@ -322,6 +322,8 @@ function affixVideo(m){
 	var sp=getFixedOffset(m);
 	m.style.width=(m.scrollWidth)+'px';
 	m.style.height=(m.scrollHeight)+'px';
+	var origBottomMargin=document.body.style.marginBottom;
+	document.body.style.marginBottom = m.style.height; // prevent scroll up if near max scroll when element is removed
 	m.style.position='fixed';
 	m.style.top=(sp.y)+'px';
 	m.style.left=(sp.x)+'px';
@@ -339,6 +341,7 @@ function affixVideo(m){
 		m.parentNode.insertBefore(spa,m);
 		Cr.addListeners();
 	}
+	document.body.style.marginBottom=origBottomMargin; // reset
 	m = m.querySelector('[vidtapeabovecount]') || m;
 	return m;
 }
