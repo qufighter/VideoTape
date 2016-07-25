@@ -2,6 +2,7 @@ videoTapeBlock: {
 if(document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
 var tabid=false;
 var vidDropShadow=false;
+var countOfFixedVideos=0;
 var cssPropsWeModify={'width':'w', 'height':'h', 'top':'t', 'left':'l', 'zIndex':'z', 'position':'p', 'boxShadow':'boxShadow' }; // a loop added to program
 function _ge(g){
 	return document.getElementById(g);
@@ -363,26 +364,29 @@ function setWindowSize(s){
 	s.w=window.innerWidth,
 	s.h=window.innerHeight;
 }
-setWindowSize(lastWindowSize);
-window.addEventListener('resize', function(){
-	setWindowSize(currentWindowSize);
-	var offset,m,i,l,offsetX,offsetY;
-	for(i=0,l=validNodes.length;i<l;i++){
-		m = validNodes[i].elm;
-		if( m.style.position=='fixed' ){
-			offsetX = parsePx(m.style.left),
-			offsetY = parsePx(m.style.top);
+function viewResized(){
+	if( countOfFixedVideos > 0 ){
+		setWindowSize(currentWindowSize);
+		var offset,m,i,l,offsetX,offsetY;
+		for(i=0,l=validNodes.length;i<l;i++){
+			m = validNodes[i].elm;
+			if( m.style.position=='fixed' ){
+				offsetX = parsePx(m.style.left),
+				offsetY = parsePx(m.style.top);
 
-			if( currentWindowSize.w > m.clientWidth && offsetX+(m.clientWidth*0.5) > lastWindowSize.w*0.5 ){ // right half
-				m.style.left=Math.round(offsetX+(currentWindowSize.w-lastWindowSize.w))+'px';
-			}
-			if( currentWindowSize.h > m.clientHeight && offsetY+(m.clientHeight*0.5) > lastWindowSize.h*0.5 ){ // bottom half
-				m.style.top=Math.round(offsetY+(currentWindowSize.h-lastWindowSize.h))+'px';
+				if( currentWindowSize.w > m.clientWidth && offsetX+(m.clientWidth*0.5) > lastWindowSize.w*0.5 ){ // right half
+					m.style.left=Math.round(offsetX+(currentWindowSize.w-lastWindowSize.w))+'px';
+				}
+				if( currentWindowSize.h > m.clientHeight && offsetY+(m.clientHeight*0.5) > lastWindowSize.h*0.5 ){ // bottom half
+					m.style.top=Math.round(offsetY+(currentWindowSize.h-lastWindowSize.h))+'px';
+				}
 			}
 		}
 	}
 	setWindowSize(lastWindowSize);
-});
+}
+setWindowSize(lastWindowSize);
+window.addEventListener('resize', viewResized);
 
 if(!document.body.getAttribute('chromeextension:video-tape'))chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
@@ -437,11 +441,13 @@ function(request, sender, sendResponse) {
 		m =  videoNodeAt(request, request.fixVideo);
 		if( !m ) return sendResponse({});
 		m=affixVideo(m);
+		countOfFixedVideos++;
 		sendResponse({src:m?m.src:''});
 	}else if (request.unfixVideo){
 		m =  videoNodeAt(request, request.unfixVideo);
 		if( !m ) return sendResponse({});
 		unfixVideo(m, request.showRestored);
+		countOfFixedVideos--;
 		sendResponse({});
 	}else if (request.domDetachVideo){
 		m =  videoNodeAt(request, request.domDetachVideo);
