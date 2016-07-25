@@ -6,6 +6,9 @@ var cssPropsWeModify={'width':'w', 'height':'h', 'top':'t', 'left':'l', 'zIndex'
 function _ge(g){
 	return document.getElementById(g);
 }
+function parsePx(pxVal){
+	return parseInt(pxVal, 10);
+}
 function getFixedOffset( el ){
 	var rec = el.getClientRects()[0];
 	if(rec)return{y:rec.top,x:rec.left};
@@ -354,9 +357,36 @@ function videoNodeAt(req, i){
 	return m;
 }
 
+var currentWindowSize={w: 1,h: 1};
+var lastWindowSize={w: 1,h: 1};
+function setWindowSize(s){
+	s.w=window.innerWidth,
+	s.h=window.innerHeight;
+}
+setWindowSize(lastWindowSize);
+window.addEventListener('resize', function(){
+	setWindowSize(currentWindowSize);
+	var offset,m,i,l,offsetX,offsetY;
+	for(i=0,l=validNodes.length;i<l;i++){
+		m = validNodes[i].elm;
+		if( m.style.position=='fixed' ){
+			offsetX = parsePx(m.style.left),
+			offsetY = parsePx(m.style.top);
+
+			if( currentWindowSize.w > m.clientWidth && offsetX+(m.clientWidth*0.5) > lastWindowSize.w*0.5 ){ // right half
+				m.style.left=Math.round(offsetX+(currentWindowSize.w-lastWindowSize.w))+'px';
+			}
+			if( currentWindowSize.h > m.clientHeight && offsetY+(m.clientHeight*0.5) > lastWindowSize.h*0.5 ){ // bottom half
+				m.style.top=Math.round(offsetY+(currentWindowSize.h-lastWindowSize.h))+'px';
+			}
+		}
+	}
+	setWindowSize(lastWindowSize);
+});
+
 if(!document.body.getAttribute('chromeextension:video-tape'))chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
-	var m, i;
+	var m, i, l;
 	if (request.getLayout){
 		tabid = request.tabid;
 		var response=[];
@@ -364,7 +394,7 @@ function(request, sender, sendResponse) {
 			m = validNodes[i].elm;
 			var sp=getFixedOffset(m);
 			response.push({x:sp.x,y:sp.y,w:m.scrollWidth,h:m.scrollHeight,fixed:m.style.position=='fixed'});
-		}	
+		}
 		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response});
 	}else if (typeof(request.scrToYpcnt)!='undefined'){
 		window.scrollTo(0,Math.round(request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight())));
