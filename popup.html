@@ -9,6 +9,12 @@
 			padding:0px;
 			text-align:center;
 			-webkit-user-select:none;
+			background-color:#FBFBFB;
+		}
+		body.fixed-popup-size{
+			min-width:250px;
+			min-height:200px;
+			overflow: hidden;
 		}
 		.vs{
 			font-weight:bold;font-size:1.1em;
@@ -93,15 +99,17 @@
   <title>Popup</title>
 </head>
 <body>
-	<div class="vs">Video Sticky Tape</div>
+	<div class="vs" id="vs">Video Sticky Tape</div>
 	<div id="msbox"><canvas id="minican"></canvas></div>
-	<div id="load">LOADING</div>
-	<a target="_blank" href="options.html">Options</a>
-	<a href="#help" id="helpbtn">Help</a><div id="helptxt" class="wsnowrap">
-		Scroll video onto screen<br/>
-		Click fastens to window edge.<br/>
-		Drag to reposition.<br/>
-		Click again to restore video.
+	<div id="ve">
+		<div id="load">LOADING</div>
+		<a target="_blank" href="options.html">Options</a>
+		<a href="#help" id="helpbtn">Help</a><div id="helptxt" class="wsnowrap">
+			Scroll video onto screen<br/>
+			Click fastens to window edge.<br/>
+			Drag to reposition.<br/>
+			Click again to restore video.
+		</div>
 	</div>
 </body>
 </html>

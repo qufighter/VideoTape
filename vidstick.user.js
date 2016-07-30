@@ -367,6 +367,11 @@ function setWindowSize(s){
 	s.w=window.innerWidth,
 	s.h=window.innerHeight;
 }
+function setElementPositionOnScreenX(x, element, screenWidth){
+	if( x < 0 ) x = 0;
+	else if( x + element.clientWidth > screenWidth ) x = screenWidth - element.clientWidth;
+	element.style.left=x+'px';
+}
 function viewResized(){
 	if( countOfFixedVideos > 0 ){
 		setWindowSize(currentWindowSize);
@@ -377,8 +382,14 @@ function viewResized(){
 				offsetX = parsePx(m.style.left),
 				offsetY = parsePx(m.style.top);
 
-				if( currentWindowSize.w > m.clientWidth && offsetX+(m.clientWidth*0.5) > lastWindowSize.w*0.5 ){ // right half
-					m.style.left=Math.round(offsetX+(currentWindowSize.w-lastWindowSize.w))+'px';
+				var quarterWidth = lastWindowSize.w * 0.25;
+				var xCenter = offsetX+(m.clientWidth*0.5);
+				var videoFitsInWindowX = currentWindowSize.w > m.clientWidth;
+
+				if( videoFitsInWindowX && xCenter > quarterWidth && xCenter < quarterWidth * 3 ){ // middle half
+					setElementPositionOnScreenX(Math.round(offsetX+((currentWindowSize.w-lastWindowSize.w)*0.5)), m, currentWindowSize.w);
+				}else if( videoFitsInWindowX && xCenter > lastWindowSize.w*0.5 ){ // right half
+					setElementPositionOnScreenX(Math.round(offsetX+(currentWindowSize.w-lastWindowSize.w)), m, currentWindowSize.w);
 				}
 				if( currentWindowSize.h > m.clientHeight && offsetY+(m.clientHeight*0.5) > lastWindowSize.h*0.5 ){ // bottom half
 					m.style.top=Math.round(offsetY+(currentWindowSize.h-lastWindowSize.h))+'px';

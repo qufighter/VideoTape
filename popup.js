@@ -1,5 +1,8 @@
 var tabid=0,winid=0,topz=100;
 var scaleFactor = 0.2;
+var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
+var fixedSizePopup = isFirefox;
+
 function _ge(g){
 	return document.getElementById(g);
 }
@@ -278,6 +281,16 @@ function getCurrentLayout(){
 		if(initalLoad){
 			var lo=_ge('load');if(lo)lo.parentNode.removeChild(lo);
 		}
+
+		if( fixedSizePopup ){
+			var xBorder = 13;
+			var yBorder = _ge('vs').clientHeight + _ge('ve').clientHeight + xBorder;
+			scaleFactor = (window.innerWidth - xBorder) / r.win.w;
+			if( r.win.h * scaleFactor > (window.innerHeight - yBorder) ){
+				scaleFactor = (window.innerHeight - yBorder) / r.win.h;
+			}
+		}
+
 		var scrollDelta = Math.ceil((scrlY - snapshotScrollY) * scaleFactor);
 
 		r.win.w=Math.ceil(r.win.w*scaleFactor);
@@ -351,7 +364,8 @@ function iin(){
 
 	chrome.windows.getCurrent(function(window){
 		winid=window.id;
-		chrome.tabs.getSelected(winid, function(tab){
+		chrome.tabs.query({windowId: winid, active: true}, function(tabs){
+			tab = tabs[0];
 			tabid=tab.id;
 			chrome.tabs.sendMessage(tabid,{justOpened:true,vidDropShadow:localStorage['vidDropShadow']=='true'},function(r){});
 			getCurrentLayout();
@@ -362,6 +376,7 @@ function iin(){
 function toggle_next_sibling_display(ev){
 	who=getEventTargetA(ev);
 	var nss=who.nextSibling.style;if(nss.display=='block')nss.display='none';else nss.display='block';
+	if( fixedSizePopup ) getCurrentLayout(); // to expand view if needed
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -370,4 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	document.getElementById('helpbtn').addEventListener('click', toggle_next_sibling_display);
 
+	if( fixedSizePopup ){
+		document.body.className += ' fixed-popup-size'
+	}
 });
