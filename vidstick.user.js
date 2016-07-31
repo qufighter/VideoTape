@@ -339,7 +339,6 @@ function affixVideo(m){
 	if(!m.getAttribute('domDetached')){
 		var spa=Cr.elm('div',{'class':'_videotapespacer','events':[['contextmenu',spacerContextMenu]],'style':'display:inline-block;height:'+m.clientHeight+'px;width:'+m.clientWidth+'px;'});
 		m.parentNode.insertBefore(spa,m);
-		Cr.addListeners();
 	}
 	document.body.style.marginBottom=origBottomMargin; // reset
 	m = m.querySelector('[vidtapeabovecount]') || m;
