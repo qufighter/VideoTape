@@ -250,4 +250,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		toggle_next_sibling_display({target:document.getElementById('shohelp')})
 	}
 	
+	createAndAttachRatings(document.getElementById('ratings-container'));
+
 });
