@@ -342,7 +342,10 @@ function getCurrentLayout(){
 			_ge('scrolldrag').style.top=Math.round(r.win.scrypcnt*(winHei-_ge('scrolldrag').clientHeight))+'px';
 			_ge('scrollhold').style.height=winHei+"px";
 		}
-		
+
+		if( r.elm.length < 1 ){
+			_ge('vs').innerText = "No videos found at this time!"
+		}
 		snapshot(scrlY);
 	});
 }
