@@ -365,7 +365,7 @@ function iin(){
 	chrome.windows.getCurrent(function(window){
 		winid=window.id;
 		chrome.tabs.query({windowId: winid, active: true}, function(tabs){
-			tab = tabs[0];
+			var tab = tabs[0];
 			tabid=tab.id;
 			chrome.tabs.sendMessage(tabid,{justOpened:true,vidDropShadow:localStorage['vidDropShadow']=='true'},function(r){});
 			getCurrentLayout();
