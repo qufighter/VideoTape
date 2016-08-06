@@ -407,11 +407,12 @@ function(request, sender, sendResponse) {
 	if (request.getLayout){
 		tabid = request.tabid;
 		var response=[];
-		for(i=0,l=validNodes.length;i<l;i++){
-			m = validNodes[i].elm;
-			var sp=getFixedOffset(m);
-			response.push({x:sp.x,y:sp.y,w:m.scrollWidth,h:m.scrollHeight,fixed:m.style.position=='fixed'});
-		}
+		if( document.body.clientWidth < document.body.scrollWidth || document.body.clientHeight < document.body.scrollHeight )
+			for(i=0,l=validNodes.length;i<l;i++){
+				m = validNodes[i].elm;
+				var sp=getFixedOffset(m);
+				response.push({x:sp.x,y:sp.y,w:m.scrollWidth,h:m.scrollHeight,fixed:m.style.position=='fixed'});
+			}
 		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response});
 	}else if (typeof(request.scrToYpcnt)!='undefined'){
 		window.scrollTo(0,Math.round(request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight())));
