@@ -362,8 +362,7 @@ function iin(){
 	document.body.addEventListener('mousemove',mmf);
 	document.body.addEventListener('mouseup',vmup);
 	document.body.addEventListener('mousedown',vmdn);
-
-	window.addEventListener('mousewheel',mwheel);
+	document.body.addEventListener('wheel',mwheel);
 
 	chrome.windows.getCurrent(function(window){
 		winid=window.id;

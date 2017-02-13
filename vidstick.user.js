@@ -81,7 +81,6 @@ var topFixed=1000;
 var lasMoveVideo=-1;
 var wasEnabled=false;
 
-
 function checkForNodes(){
 	var testurl=window.location.href;
 	
@@ -99,11 +98,16 @@ function checkForNodes(){
 	}
 	
 	validNodes=[];
-	var nodes1=document.getElementsByTagName('embed');
+	var nodes1=document.getElementsByTagName('embed'); // legacy
 	var nodes1b=document.getElementsByTagName('object');
-	var nodes2=document.getElementsByTagName('video');
-	var nodes3=document.getElementsByTagName('iframe');
-	
+	//var nodes2=document.getElementsByTagName('video'); // <video or matched nodes that behave like video nodes
+	var nodes2=document.querySelectorAll('video');
+	//var nodes3=document.getElementsByTagName('iframe');// <iframe,img.cool, etc
+	var nodes3=document.querySelectorAll('iframe');
+
+//todo: 	// watch out for e.relatedNode.querySelectorAll('embed,object,video,iframe') elsewhere
+
+
 	/*
 	if(vid.contentDocument.location.href.length > testurl.length)
 		testurl=vid.contentDocument.location.href;
@@ -344,9 +348,11 @@ function affixVideo(m){
 	m = m.querySelector('[vidtapeabovecount]') || m;
 	return m;
 }
-function unfixVideo(m, showRestored){
+function unfixVideo(m, meta, showRestored){
 	if(m.previousSibling && m.previousSibling.className=='_videotapespacer'){
-		m.parentNode.removeChild(m.previousSibling);
+		if( !m.parentNode ){
+			console.log('video not found!', meta);
+		}else m.parentNode.removeChild(m.previousSibling);
 	}
 	resetOrigionalProperties(m);
 	if(showRestored)m.scrollIntoViewIfNeeded();
@@ -355,9 +361,13 @@ function unfixVideo(m, showRestored){
 }
 
 function videoNodeAt(req, i){
-	var m = validNodes[i-1].elm;
+	var m = vidoeAt(i).elm;
 	if( !m || !m.getAttribute("vidtapeorigprops") ){  console.log('vidsbee.videotape.problem ',req,' nodeProp> ',m?m.getAttribute("vidtapeorigprops"):'falsey','please report the URL');return false;};
 	return m;
+}
+
+function vidoeAt(i){
+	return validNodes[i-1];
 }
 
 var currentWindowSize={w: 1,h: 1};
@@ -407,7 +417,7 @@ function(request, sender, sendResponse) {
 	if (request.getLayout){
 		tabid = request.tabid;
 		var response=[];
-		if( document.body.clientWidth < document.body.scrollWidth || document.body.clientHeight < document.body.scrollHeight )
+		if( document.body.clientWidth < document.body.scrollWidth || document.body.clientHeight < document.body.scrollHeight ) // if you cannot scroll you cannot affix
 			for(i=0,l=validNodes.length;i<l;i++){
 				m = validNodes[i].elm;
 				var sp=getFixedOffset(m);
@@ -460,7 +470,7 @@ function(request, sender, sendResponse) {
 	}else if (request.unfixVideo){
 		m =  videoNodeAt(request, request.unfixVideo);
 		if( !m ) return sendResponse({});
-		unfixVideo(m, request.showRestored);
+		unfixVideo(m, vidoeAt(i), request.showRestored);
 		countOfFixedVideos--;
 		sendResponse({});
 	}else if (request.domDetachVideo){
