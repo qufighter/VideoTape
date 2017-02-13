@@ -2,6 +2,7 @@ var tabid=0,winid=0,topz=100;
 var scaleFactor = 0.2;
 var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
 var fixedSizePopup = isFirefox;
+var constrainToWindow = true; // todo - make option (keep video within window during move/resize)
 
 function _ge(g){
 	return document.getElementById(g);
@@ -159,12 +160,15 @@ function scrollmdown(ev){
 	ds_x=d_x,ds_y=d_y;
 	return preventEventDefault(ev);
 }
-function vmup(ev){
-	var elm=isdrag || getEventTarget(ev);
+function dragStop(ev){
 	bardrag=false;
 	scdrag=false;
 	isresize=false;
 	bgdrag=false;
+}
+function vmup(ev){
+	var elm=isdrag || getEventTarget(ev);
+	dragStop();
 
 	if(ev.which == 2){
 		chrome.tabs.sendMessage(tabid,{removeVideo:videoElmToIdNum(elm)},function(r){
@@ -220,13 +224,27 @@ function vmup(ev){
 }
 
 function mmf(ev){
+	if(ev.which == 0){
+		return dragStop(); // mouse button is not down
+	}
 	if(isdrag){
 		var nx=isdrag.style.left.replace('px','')-0+(ev.pageX-d_x);
 		var ny=isdrag.style.top.replace('px','')-0+(ev.pageY-d_y);
+		var vw=isdrag.style.width.replace('px','')-0;
+		var vh=isdrag.style.height.replace('px','')-0;
+		if( constrainToWindow ){
+			if( nx + vw > _ge('minican').width ){
+				nx = _ge('minican').width - vw;
+			}
+			if( ny + vh > _ge('minican').height ){
+				ny = _ge('minican').height - vh;
+			}
+			if( ny < 0 ) ny = 0;
+			if( nx < 0 ) nx = 0;
+		}
 		isdrag.style.left=nx+'px';
 		isdrag.style.top=ny+'px';
 		d_x=ev.pageX,d_y=ev.pageY;
-		
 		if(isdrag.className=='videofixed'){
 			chrome.tabs.sendMessage(tabid,{moveVideo:videoElmToIdNum(isdrag),x:Math.round(nx/scaleFactor),y:Math.round(ny/scaleFactor)},function(r){});
 		}
@@ -234,8 +252,29 @@ function mmf(ev){
 	}else if(isresize){
 		var nx=isresize.style.width.replace('px','')-0+(ev.pageX-d_x);
 		var ny=isresize.style.height.replace('px','')-0+(ev.pageY-d_y);
-		scf=isresize.getAttribute('aspect')-0;
-		if(scf > 0)nx = ny * scf;//y based scaling
+		if( nx < 0 || ny < 0 ) return;
+		var scf=isresize.getAttribute('aspect')-0;
+		if(scf > 0)nx = ny * scf; //y based scaling default
+		var px = isresize.style.left.replace('px','')-0;
+		var py = isresize.style.top.replace('px','')-0;
+		if( constrainToWindow ){
+			if( scf > 0 ){
+				if( px + nx > _ge('minican').width ){
+					nx = _ge('minican').width - px;
+					ny = nx / scf;
+				}else if( py + ny > _ge('minican').height ){
+					ny = _ge('minican').height - py;
+					nx = ny * scf;
+				}
+			}else if( !scf || scf < 0 ){ // non aspect respect scaling (not currently reachable)
+				if( px + nx > _ge('minican').width ){
+					nx = _ge('minican').width - px;
+				}
+				if( py + ny > _ge('minican').height ){
+					ny = _ge('minican').height - py;
+				}
+			}
+		}
 		isresize.style.width=nx+'px';
 		isresize.style.height=ny+'px';
 		d_x=ev.pageX,d_y=ev.pageY;
