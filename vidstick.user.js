@@ -417,7 +417,7 @@ function(request, sender, sendResponse) {
 	if (request.getLayout){
 		tabid = request.tabid;
 		var response=[];
-		if( document.body.clientWidth < document.body.scrollWidth || document.body.clientHeight < document.body.scrollHeight ) // if you cannot scroll you cannot affix
+		//if( document.body.clientWidth < document.body.scrollWidth || document.body.clientHeight < document.body.scrollHeight ) // if you cannot scroll you cannot affix
 			for(i=0,l=validNodes.length;i<l;i++){
 				m = validNodes[i].elm;
 				var sp=getFixedOffset(m);
