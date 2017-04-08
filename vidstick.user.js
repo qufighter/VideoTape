@@ -1,5 +1,6 @@
 videoTapeBlock: {
 if(document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
+const ATTRIB_FILLSCREEN = "vidtapefullscreen";
 var tabid=false;
 var vidDropShadow=false;
 var countOfFixedVideos=0;
@@ -255,18 +256,21 @@ function isContainerProxyFor(elType, container, origional){
 
 }
 
-function resetOrigionalProperties(validNode){
-	var origProps=JSON.parse(validNode.getAttribute("vidtapeorigprops")) || false;
-	if( !origProps ){
-	}
+function resetPropertiesFromSource(validNode, sourceAttribute){
+	var origProps=JSON.parse(validNode.getAttribute(sourceAttribute)) || false;
 	var prop, propShortKey;
 	for( prop in cssPropsWeModify ){
 		propShortKey = cssPropsWeModify[prop];
 		if( typeof origProps[propShortKey] != 'undefined' ) validNode.style[prop] = origProps[propShortKey];
 	}
+}
+
+function resetOrigionalProperties(validNode){
+	resetPropertiesFromSource(validNode, "vidtapeorigprops");
 	validNode.removeAttribute("vidtapeorigprops");
 	validNode = validNode.querySelector('[vidtapeabovecount]') || validNode;
 	validNode.removeAttribute('vidtapeabovecount');
+	validNode.removeAttribute(ATTRIB_FILLSCREEN);
 }
 
 setTimeout(function(){
@@ -318,6 +322,7 @@ function computeBoxShadow(m){
 }
 
 function affixVideo(m){
+	if(m.style.position=='fixed') return; // video already attached
 	document.body.style.overflow="scroll"; // in case video ever end up outside of window
 
 	// back up current properties
@@ -403,11 +408,58 @@ function viewResized(){
 				if( currentWindowSize.h > m.clientHeight && offsetY+(m.clientHeight*0.5) > lastWindowSize.h*0.5 ){ // bottom half
 					m.style.top=Math.round(offsetY+(currentWindowSize.h-lastWindowSize.h))+'px';
 				}
+
+				if( m.getAttribute(ATTRIB_FILLSCREEN) ){
+					sizeFullscreenVideo(m);
+				}
 			}
 		}
 	}
 	setWindowSize(lastWindowSize);
 }
+
+function exitFullscreen(vidoeElm){
+	if( vidoeElm.getAttribute(ATTRIB_FILLSCREEN) ){
+		resetPropertiesFromSource(vidoeElm, ATTRIB_FILLSCREEN);
+		vidoeElm.removeAttribute(ATTRIB_FILLSCREEN);
+	}
+}
+
+function fullscreenVideo(i){
+	var v = vidoeAt(i);
+	var m = v.elm;
+	if( m.getAttribute(ATTRIB_FILLSCREEN) ){
+		exitFullscreen(m);
+	}else{
+		affixVideo(m);
+		m.setAttribute(ATTRIB_FILLSCREEN, JSON.stringify(getCssPropsWeModify(m)));
+		sizeFullscreenVideo(m);
+	}
+}
+
+function sizeFullscreenVideo(m){
+	setWindowSize(currentWindowSize);
+	var h=parsePx(m.style.height);
+	var w=parsePx(m.style.width);
+	var r=w / h;
+	var nt=0,nl=0;
+
+	var nh = currentWindowSize.h;
+	var nw = nh * r;
+	if( nw > currentWindowSize.w ){
+		nw = currentWindowSize.w
+		nh = nw / r;
+		nt = (currentWindowSize.h - nh) * 0.5;
+	}else{
+		nl = (currentWindowSize.w - nw) * 0.5;
+	}
+
+	m.style.height=Math.round(nh)+'px';
+	m.style.width=Math.round(nw)+'px';
+	m.style.top=Math.round(nt)+'px';
+	m.style.left=Math.round(nl)+'px';
+}
+
 setWindowSize(lastWindowSize);
 window.addEventListener('resize', viewResized);
 
@@ -433,6 +485,7 @@ function(request, sender, sendResponse) {
 	}else if (request.moveVideo){
 		m = videoNodeAt(request, request.moveVideo);
 		if( !m ) return sendResponse({});
+		exitFullscreen(m);
 		var ith=10;
 		var oth=30;
 		if(request.x < ith && request.x > -oth)request.x=0;
@@ -446,6 +499,7 @@ function(request, sender, sendResponse) {
 	}else if (request.sizeVideo){
 		m =  videoNodeAt(request, request.sizeVideo);
 		if( !m ) return sendResponse({});
+		exitFullscreen(m);
 		m.style.height=(request.h)+'px';
 		m.style.width=(request.w)+'px';
 		computeBoxShadow(m);
@@ -461,6 +515,9 @@ function(request, sender, sendResponse) {
 		// 		}
 		// 	}
 		// }
+	}else if(request.fillwindow){
+		fullscreenVideo(request.fillwindow);
+		sendResponse({});
 	}else if (request.fixVideo){
 		m =  videoNodeAt(request, request.fixVideo);
 		if( !m ) return sendResponse({});
@@ -470,6 +527,7 @@ function(request, sender, sendResponse) {
 	}else if (request.unfixVideo){
 		m =  videoNodeAt(request, request.unfixVideo);
 		if( !m ) return sendResponse({});
+		exitFullscreen(m);
 		unfixVideo(m, vidoeAt(i), request.showRestored);
 		countOfFixedVideos--;
 		sendResponse({});

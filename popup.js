@@ -103,7 +103,9 @@ function ctx_unfix_scrollto_video(ev){
 function ctx_fix_video(ev){
 	chrome.tabs.sendMessage(tabid,{fixVideo:ctx_cur_video_id},function(r){getCurrentLayout();});
 }
-
+function ctx_toggle_fullscreen(ev){
+	makeVideoFullscreen(ctx_cur_video_id);
+}
 function vidContextMenu(ev){
 
 	var elm=getEventTarget(ev);
@@ -114,9 +116,11 @@ function vidContextMenu(ev){
 	var ctxItms=[];
 	//ctxItms.push(Cr.elm('a',{events:[['click',ctx_unfix_video]]},[Cr.txt('Hello')]));
 	if(elm.className=='videofixed'){
+		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_toggle_fullscreen,true]]},[Cr.txt('Fill Window (toggle)')]));
 		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_unfix_video,true]]},[Cr.txt('Restore Video')]));
 		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_unfix_scrollto_video,true]]},[Cr.txt('Restore and Scroll to Video')]));
 	}else{
+		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_toggle_fullscreen,true]]},[Cr.txt('Fill Window')]));
 		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_fix_video,true]]},[Cr.txt('Affix Video')]));
 	}
 	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_dom_detach_totop_video,true]]},[Cr.txt('DOM attach at Top')]));
@@ -132,6 +136,7 @@ function vidContextMenu(ev){
 }
 
 var isdrag=false,bgdrag=false,scdrag=false,bardrag=false,isresize=false,d_x=0,d_y=0,ds_x=0,ds_y=0;
+var last_click=null;
 function vmdown(ev){
 	if(ev.which != 1) return;
 	clear_snapshot();
@@ -187,7 +192,7 @@ function vmup(ev){
 	
 	if(ev.which != 1)return;
 	clearContextMenu();
-	
+
 	if(elm.className=='videofixed'){
 		elm.className='video';
 		chrome.tabs.sendMessage(tabid,{unfixVideo:videoElmToIdNum(elm),showRestored:(localStorage.restoreScrolls=='true')},function(r){getCurrentLayout();});
@@ -219,8 +224,12 @@ function vmup(ev){
 			}
 		});
 		mmf(ev);
+		if( new Date().getTime() - last_click < 500 ){ //doubleclick
+			makeVideoFullscreen(videoElmToIdNum(elm));
+		}
 	}
 	isdrag=false;
+	last_click = new Date().getTime();
 }
 
 function mmf(ev){
@@ -309,6 +318,12 @@ function mmf(ev){
 
 function mwheel(ev){
 	chrome.tabs.sendMessage(tabid,{mwheel:ev.wheelDelta},function(r){});
+}
+
+function makeVideoFullscreen(videoId){
+	chrome.tabs.sendMessage(tabid,{fillwindow:videoId},function(r){
+		getCurrentLayout();
+	});
 }
 
 var docHei=0,winHei=0,scrlY=0;
