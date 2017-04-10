@@ -123,14 +123,14 @@ function vidContextMenu(ev){
 		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_toggle_fullscreen,true]]},[Cr.txt('Fill Window')]));
 		ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_fix_video,true]]},[Cr.txt('Affix Video')]));
 	}
-	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_dom_detach_totop_video,true]]},[Cr.txt('DOM attach at Top')]));
-	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_dom_detach_tobtm_video,true]]},[Cr.txt('DOM attach at End')]));
-	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_close_video,true]]},[Cr.txt('End Video')]));
+	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_dom_detach_totop_video,true]]},[Cr.txt('DOM attach at Top \u26A0')]));
+	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_dom_detach_tobtm_video,true]]},[Cr.txt('DOM attach at End \u26A0')]));
+	ctxItms.push(Cr.elm('a',{events:[['mouseup',ctx_close_video,true]]},[Cr.txt('End Video \u26A0')]));
 	ctxItms.push(Cr.elm('a',{events:[['mouseup',clearContextMenu,true]]},[Cr.txt('Close Menu')]));
 
 	var xpos=ev.pageX;
 	if(ev.pageX > document.body.clientWidth -100)xpos-=100;
-	Cr.elm('div',{id:'contextMenu',style:'position:absolute;top:'+ev.pageY+'px;left:'+xpos+'px;'},ctxItms,document.body);
+	Cr.elm('div',{id:'contextMenu',style:'position:absolute;top:'+ev.pageY+'px;left:'+xpos+'px;font-size:1.1em;'},ctxItms,document.body);
 
 	return preventEventDefault(ev);
 }

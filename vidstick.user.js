@@ -334,6 +334,7 @@ function affixVideo(m){
 	var origBottomMargin=document.body.style.marginBottom;
 	document.body.style.marginBottom = m.style.height; // prevent scroll up if near max scroll when element is removed
 	m.style.position='fixed';
+	countOfFixedVideos++;
 	m.style.top=(sp.y)+'px';
 	m.style.left=(sp.x)+'px';
 	m.style.zIndex = topFixed;
@@ -360,6 +361,7 @@ function unfixVideo(m, meta, showRestored){
 		}else m.parentNode.removeChild(m.previousSibling);
 	}
 	resetOrigionalProperties(m);
+	countOfFixedVideos--;
 	if(showRestored)m.scrollIntoViewIfNeeded();
 	checkForNodes();//viewScrolled();//similar effects, but since we reset node, scan for nodes again
 	return m;
@@ -434,6 +436,7 @@ function fullscreenVideo(i){
 		affixVideo(m);
 		m.setAttribute(ATTRIB_FILLSCREEN, JSON.stringify(getCssPropsWeModify(m)));
 		sizeFullscreenVideo(m);
+		document.body.style.overflowX="auto";
 	}
 }
 
@@ -485,7 +488,7 @@ function(request, sender, sendResponse) {
 	}else if (request.moveVideo){
 		m = videoNodeAt(request, request.moveVideo);
 		if( !m ) return sendResponse({});
-		exitFullscreen(m);
+		//exitFullscreen(m);
 		var ith=10;
 		var oth=30;
 		if(request.x < ith && request.x > -oth)request.x=0;
@@ -496,10 +499,11 @@ function(request, sender, sendResponse) {
 		if(i!=lasMoveVideo)
 			m.style.zIndex=++topFixed;
 		lasMoveVideo=i;
+		sendResponse({});
 	}else if (request.sizeVideo){
 		m =  videoNodeAt(request, request.sizeVideo);
 		if( !m ) return sendResponse({});
-		exitFullscreen(m);
+		//exitFullscreen(m);
 		m.style.height=(request.h)+'px';
 		m.style.width=(request.w)+'px';
 		computeBoxShadow(m);
@@ -515,6 +519,7 @@ function(request, sender, sendResponse) {
 		// 		}
 		// 	}
 		// }
+		sendResponse({});
 	}else if(request.fillwindow){
 		fullscreenVideo(request.fillwindow);
 		sendResponse({});
@@ -522,14 +527,12 @@ function(request, sender, sendResponse) {
 		m =  videoNodeAt(request, request.fixVideo);
 		if( !m ) return sendResponse({});
 		m=affixVideo(m);
-		countOfFixedVideos++;
 		sendResponse({src:m?m.src:''});
 	}else if (request.unfixVideo){
 		m =  videoNodeAt(request, request.unfixVideo);
 		if( !m ) return sendResponse({});
 		exitFullscreen(m);
 		unfixVideo(m, vidoeAt(i), request.showRestored);
-		countOfFixedVideos--;
 		sendResponse({});
 	}else if (request.domDetachVideo){
 		m =  videoNodeAt(request, request.domDetachVideo);
