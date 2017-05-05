@@ -334,7 +334,7 @@ function affixVideo(m){
 	var origBottomMargin=document.body.style.marginBottom;
 	document.body.style.marginBottom = m.style.height; // prevent scroll up if near max scroll when element is removed
 	m.style.position='fixed';
-	countOfFixedVideos++;
+	updateCount(1);
 	m.style.top=(sp.y)+'px';
 	m.style.left=(sp.x)+'px';
 	m.style.zIndex = topFixed;
@@ -361,10 +361,15 @@ function unfixVideo(m, meta, showRestored){
 		}else m.parentNode.removeChild(m.previousSibling);
 	}
 	resetOrigionalProperties(m);
-	countOfFixedVideos--;
+	updateCount(-1);
 	if(showRestored)m.scrollIntoViewIfNeeded();
 	checkForNodes();//viewScrolled();//similar effects, but since we reset node, scan for nodes again
 	return m;
+}
+
+function updateCount(diff){
+	countOfFixedVideos += diff;
+	chrome.runtime.sendMessage({updateCount:''+countOfFixedVideos}, function(response){});
 }
 
 function videoNodeAt(req, i){
