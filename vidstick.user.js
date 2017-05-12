@@ -82,6 +82,10 @@ var topFixed=1000;
 var lasMoveVideo=-1;
 var wasEnabled=false;
 
+var minHeight = 100, minRatio = 0.56, maxRatio = 2.5;
+// see also hzCropRatio, vertCropRatio
+var videoControlsSelector = '[class*=play],[class*=pause],[class*=mute],[class*=volume],[class*=fullscreen],[class*=time],[class*=duration]';
+
 function checkForNodes(){
 	var testurl=window.location.href;
 	
@@ -115,9 +119,7 @@ function checkForNodes(){
 	if(vid.parentNode.nodeName=="OBJECT")vid=vid.parentNode;
 	
 	*/
-	
-	var minHeight = 100, minRatio = 0.56, maxRatio = 2.5;
-	
+
 	for(var x=0,l=nodes1.length;x<l;x++){
 		var ratio = nodes1[x].clientWidth/nodes1[x].clientHeight;
 		if(nodes1[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
@@ -187,7 +189,6 @@ function checkForNodes(){
 			}
 
 			//console.log('has props', props);
-
 			if(!props){
 				aboveCtr = 0;
 
@@ -202,7 +203,7 @@ function checkForNodes(){
 					//console.log(aboveCtr, myl.scrollWidth , tel.scrollWidth , myl.scrollHeight, tel.scrollHeight);
 					if(elType=='html5'){
 						// not just class but more attributes might match
-						foundControlls = gel.querySelectorAll('[class*=play],[class*=pause],[class*=mute],[class*=volume],[class*=fullscreen],[class*=time],[class*=duration]');
+						foundControlls = gel.querySelectorAll(videoControlsSelector);
 						if( foundControlls.length > 3 ){
 							//console.log('found controls', foundControlls);
 							tel = null; // dont advance further than necessary when seeking containers
@@ -243,13 +244,17 @@ function getCssPropsWeModify(node){
 
 function isContainerProxyFor(elType, container, origional){
 
-	var th = container.offsetHeight, hzCropRatio = 1.0, vertCropRatio = 1.042;
+	var th = container.offsetHeight, hzCropRatio = 1.0, vertCropRatio = 1.125;
 
 	if( th == 0 ){
 		th = container.scrollHeight;
 	}
 	if( elType=='html5' ){
 		hzCropRatio = 1.5;
+		if( container.querySelectorAll(videoControlsSelector).length > 3 ){
+			//return true; // seems like the container is a good fit!
+			vertCropRatio = 1.25
+		}
 	}
 
 	return origional.scrollWidth * hzCropRatio >= container.scrollWidth && origional.scrollHeight * vertCropRatio >= th;
