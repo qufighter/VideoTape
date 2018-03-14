@@ -48,9 +48,9 @@ function save_options() {
 
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
-  status.innerHTML = "Options Saved.";
+  Cr.empty(status).appendChild(Cr.txt("Options Saved."));
   setTimeout(function() {
-    status.innerHTML = "";
+    Cr.empty(status)
   }, 750);
   
   chrome.runtime.sendMessage({greeting: "reloadprefs"}, function(response) { });
@@ -72,9 +72,9 @@ function reset_options() {
 	}
 	
 	var status = document.getElementById("status");
-  status.innerHTML = "You still need to press save, defaults are showing now.";
+	Cr.empty(status).appendChild(Cr.txt("You still need to press save, defaults are showing now."));
   setTimeout(function() {
-    status.innerHTML = "";
+    Cr.empty(status)
   }, 1750);
 }
 
