@@ -4,6 +4,10 @@ var ln_sprt = 'https://chrome.google.com/webstore/detail/video-tape/lkkdmddhgage
 var ln_rate = 'https://chrome.google.com/webstore/detail/video-tape/lkkdmddhgagekfkngjpldinmkjbfcfab/reviews';//?hl=en-US&gl=US'
 
 var interactiveMode = false;
+if( isFirefox ){
+	ln_sprt = 'https://addons.mozilla.org/en-US/firefox/addon/video-sticky-tape/';
+	ln_rate = 'https://addons.mozilla.org/en-US/firefox/addon/video-sticky-tape/reviews/';
+}
 
 function createRatings(){
 	setTimeout(function(){

@@ -252,4 +252,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	createAndAttachRatings(document.getElementById('ratings-container'));
 
+	if( isFirefox ){
+		document.getElementById('web-link').href=ln_sprt;
+	}
+
 });

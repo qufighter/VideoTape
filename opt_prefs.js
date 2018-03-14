@@ -1,3 +1,5 @@
+var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
+var isChrome = window.navigator.userAgent.indexOf('Chrome/') > -1;
 var pOptions=[];
 var pAdvOptions=[];
 

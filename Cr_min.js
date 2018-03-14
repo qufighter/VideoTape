@@ -62,7 +62,7 @@ var Cr = {
  Empty Patteren:
           Cr.elm('div',{},[],document.body);
 *******************************************************************************/
-	doc : document,
+	doc : typeof document != 'undefined' ? document : null,
 	elm : function(nodeType,attributes,addchilds,appnedTo){
 		var ne=this.doc.createElement(nodeType),i,l,lev,a;
 		if(attributes){
@@ -92,13 +92,16 @@ var Cr = {
 					//handled earlier
 				}else if( i == 'checked' || i == 'selected' ){
 					if(a)ne.setAttribute(i,i);
-				}else if( a || a===false || a==='' ) ne.setAttribute(i,a);
+				}else if( a || a==false ) ne.setAttribute(i,''+a); // omit undefined or null value attributes, preserve false,0 value
 			}
 		}
 		if(addchilds){
-			for( i=0,l=addchilds.length;i<l;i++ ){
-				if(addchilds[i])ne.appendChild(addchilds[i]);//you probably forgot a comma when calling the function
-			}
+			if( addchilds.length ){
+				for( i=0,l=addchilds.length;i<l;i++ ){
+					if(addchilds[i])ne.appendChild(addchilds[i]); //you probably forgot a comma when calling the function
+				}
+			}else if( addchilds.length !== 0 )
+				console.warn('Cr Exception: child nodes must be an array: [...]');
 		}
 		if(appnedTo){
 			this.insertNode(ne, appnedTo);
@@ -177,11 +180,14 @@ var Cr = {
 	},
 	empty : function(node){
 		while(node.lastChild)node.removeChild(node.lastChild);
+		return node;
 	},
 	unescapeHtml : function(str) { //trick used to make HTMLentiites work inside textNodes
 		// https://stackoverflow.com/questions/7394748/whats-the-right-way-to-decode-a-string-that-has-special-html-entities-in-it
 		var txt = this.doc.createElement("textarea");
 		txt.innerHTML = str; // arguable you should still sanitize this string, most if not all browsers will not evaluate script in this context though
+		// only the text is returned, the txt area node is discarded and never added to the DOM
+		// other than Cr.ent this function is never used.
 		return txt.value;
 	}
 };
