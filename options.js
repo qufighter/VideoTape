@@ -35,24 +35,10 @@ function save_options() {
 	//localStorage["showCurrentTab"] = document.getElementById("showCurrentTab").checked;
 	//localStorage["maxhistory"] = document.getElementById("maxhistory").value;
 	
-	var iconbitmap=false;
-	var appleIcon=false;
-	
-	if(typeof(localStorage["iconIsBitmap"])!='undefined')iconbitmap = ((localStorage["iconIsBitmap"]=='true')?true:false);
-	if(typeof(localStorage["appleIcon"])!='undefined')appleIcon = ((localStorage["appleIcon"]=='true')?true:false);
-	if(!iconbitmap){
-		var iconPath='';
-		if(appleIcon)iconPath='apple/';
-		chrome.browserAction.setIcon({path:chrome.extension.getURL(iconPath+'icon19.png')});//update icon (to be configurable)
-	}
 
   // Update status to let user know options were saved.
-  var status = document.getElementById("status");
-  Cr.empty(status).appendChild(Cr.txt("Options Saved."));
-  setTimeout(function() {
-    Cr.empty(status)
-  }, 750);
-  
+  displayStatus("Options Saved.", 750);
+
   chrome.runtime.sendMessage({greeting: "reloadprefs"}, function(response) { });
 }
 
@@ -70,12 +56,21 @@ function reset_options() {
 		else
 			document.getElementById(i).value = pAdvOptions[i].def;
 	}
-	
+
+	displayStatus("You still need to press save, defaults are showing now.");
+}
+
+var clearStatusTimeout = 0;
+function displayStatus(message, timeout){
+	timeout = timeout || 1750;
 	var status = document.getElementById("status");
-	Cr.empty(status).appendChild(Cr.txt("You still need to press save, defaults are showing now."));
-  setTimeout(function() {
-    Cr.empty(status)
-  }, 1750);
+	Cr.empty(status);
+	status.appendChild(Cr.txt(message)); // requireds upgradeeeee!
+
+	clearTimeout(clearStatusTimeout);
+	clearStatusTimeout = setTimeout(function() {
+		status.innerHTML = "";
+	}, timeout);
 }
 
 // Restores select box state to saved value from localStorage.
