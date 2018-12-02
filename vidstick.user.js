@@ -66,9 +66,10 @@ styles+='#videoTapeCtxM a:hover{background-color:#AAA;}';
 
 styleelem=document.createElement('style');
 styleelem.type='text/css';
+styleelem.id='videoTapeCtxM-style-node'
 styleelem.appendChild(document.createTextNode(''+styles+''));
 var e=(document.getElementsByTagName('head')[0]||document.body);
-if(e){e.appendChild(styleelem);}
+if(!_ge(styleelem.id) && e){e.appendChild(styleelem);}
 
 var chkForNodesTimeout=0;
 function nodeInserted(e){
