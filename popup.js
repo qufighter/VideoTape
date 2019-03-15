@@ -200,28 +200,28 @@ function vmup(ev){
 		elm.className='videofixed';
 		chrome.tabs.sendMessage(tabid,{fixVideo:videoElmToIdNum(elm)},function(r){
 			getCurrentLayout();
-			if(localStorage["reallyShareVideos"]){
-				//examine video SRC here and record this being a good video....
-				var vURL=false;
-				var vTitle=false;
+			// if(localStorage["reallyShareVideos"]=='true'){
+			// 	//examine video SRC here and record this being a good video....
+			// 	var vURL=false;
+			// 	var vTitle=false;
 
-				if(r.src && r.src.indexOf('youtube.com/embed')){
-					var urlPart=r.src.split('/');
-					vURL = 'http://www.youtube.com/watch?v='+urlPart[urlPart.length-1];
-					vTitle = '';
-				}
+			// 	if(r.src && r.src.indexOf('youtube.com/embed')){
+			// 		var urlPart=r.src.split('/');
+			// 		vURL = 'http://www.youtube.com/watch?v='+urlPart[urlPart.length-1];
+			// 		vTitle = '';
+			// 	}
 				
-				if(vURL){
-					var xhr = new XMLHttpRequest();
-					xhr.onreadystatechange=function(){if(xhr.readyState == 4){
-						if(xhr.status==200){
-							//console.log(xhr.responseText);
-						}
-					}};
-					xhr.open('GET', "http://www.vidzbigger.com/version.php?version=100&watch=true&png24=true&url="+vURL+"&title="+vTitle, true);
-					xhr.send();
-				}
-			}
+			// 	if(vURL){
+			// 		var xhr = new XMLHttpRequest();
+			// 		xhr.onreadystatechange=function(){if(xhr.readyState == 4){
+			// 			if(xhr.status==200){
+			// 				//console.log(xhr.responseText);
+			// 			}
+			// 		}};
+			// 		xhr.open('GET', "http://www.vidzbigger.com/version.php?version=100&watch=true&png24=true&url="+vURL+"&title="+vTitle, true);
+			// 		xhr.send();
+			// 	}
+			// }
 		});
 		mmf(ev);
 		if( new Date().getTime() - last_click < 500 ){ //doubleclick
