@@ -1,5 +1,5 @@
 videoTapeBlock: {
-if(document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
+if(document.body && document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
 const ATTRIB_FILLSCREEN = "vidtapefullscreen";
 var tabid=false;
 var vidDropShadow=false;
