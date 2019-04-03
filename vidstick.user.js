@@ -87,6 +87,16 @@ var minHeight = 100, minRatio = 0.56, maxRatio = 2.5;
 // see also hzCropRatio, vertCropRatio
 var videoControlsSelector = '[class*=play],[class*=pause],[class*=mute],[class*=volume],[class*=fullscreen],[class*=time],[class*=duration]';
 
+
+function ratioIsBad(elm){
+	if( elm.getAttribute('vidtapeabovecount') != null ){
+		return false; // this node has to be "good" still since it was good before... we do not wish to loose control over applied changes which could in some cases ruin the aspect ratio (teh container ratio would be good still, but the node itself has a bad ratio now due to some unruly css)
+	}
+	var ratio = elm.clientWidth / elm.clientHeight;
+	return elm.clientHeight < minHeight || ratio < minRatio || ratio > maxRatio;
+}
+
+
 function checkForNodes(){
 	var testurl=window.location.href;
 	
@@ -122,21 +132,18 @@ function checkForNodes(){
 	*/
 
 	for(var x=0,l=nodes1.length;x<l;x++){
-		var ratio = nodes1[x].clientWidth/nodes1[x].clientHeight;
-		if(nodes1[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
+		if(ratioIsBad(nodes1[x])) continue;
 		if(nodes1[x].parentNode.nodeName=="OBJECT") continue;
 		validNodes.push({typ:'flash',elm:nodes1[x]});
 	}
 	
 	for(var x=0,l=nodes1b.length;x<l;x++){
-		var ratio = nodes1b[x].clientWidth/nodes1b[x].clientHeight;
-		if(nodes1b[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
+		if(ratioIsBad(nodes1b[x])) continue;
 		validNodes.push({typ:'flash',elm:nodes1b[x]});
 	}
 	
 	for(var x=0,l=nodes2.length;x<l;x++){
-		var ratio = nodes2[x].clientWidth/nodes2[x].clientHeight;
-		if(nodes2[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
+		if(ratioIsBad(nodes2[x])) continue;
 		if(nodes2[x].childNodes.length < 1 && nodes2[x].controls == false){
 			//validNodes.push({typ:'html5',elm:nodes2[x].parentNode});//video element without child nodes, must have parent contained controlls, parent container that centers video, who knows what else
 			validNodes.push({typ:'html5',elm:nodes2[x]});// always use node itself in case it would detect differently on a different pass
@@ -146,8 +153,7 @@ function checkForNodes(){
 	}
 	
 	for(var x=0,l=nodes3.length;x<l;x++){
-		var ratio = nodes3[x].clientWidth/nodes3[x].clientHeight;
-		if(nodes3[x].clientHeight < minHeight || ratio < minRatio || ratio > maxRatio ) continue;
+		if(ratioIsBad(nodes3[x])) continue;
 		if(nodes3[x].getAttribute('aria-hidden') == 'true') continue;
 		validNodes.push({typ:'iframe',elm:nodes3[x]});
 	}
@@ -190,7 +196,7 @@ function checkForNodes(){
 			}
 
 			//console.log('has props', props);
-			if(!props){
+			if(!props && lastAboveCnt === 0 && elType=='html5'){ // while it might be arguable to match html5* html5-ctn is presumably containing all the controls and not just some of them.. sane people already use the video node as a container for controls, thats what it is... wrapping a video inside an inline-block div that also contains controls just proves how box sizing works... its redundant and it makes finding and moving the video annoying since it would be detached from its controls now.  What the following code does is attempt to detect the true container of both the video and controls, it is imperfect.
 				aboveCtr = 0;
 
 				// if html5 we might try seeking controlls first, since aspect ratio of video may not match player
@@ -202,14 +208,14 @@ function checkForNodes(){
 					tel=tel.parentNode;
 
 					//console.log(aboveCtr, myl.scrollWidth , tel.scrollWidth , myl.scrollHeight, tel.scrollHeight);
-					if(elType=='html5'){
+					//if(elType=='html5'){
 						// not just class but more attributes might match
 						foundControlls = gel.querySelectorAll(videoControlsSelector);
 						if( foundControlls.length > 3 ){
 							//console.log('found controls', foundControlls);
 							tel = null; // dont advance further than necessary when seeking containers
 						}
-					}
+					//}
 				}
 			}
 
