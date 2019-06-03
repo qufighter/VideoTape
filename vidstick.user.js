@@ -370,7 +370,13 @@ function affixVideo(m){
 	computeBoxShadow(m);
 	//-webkit-transform: translate3d(0px, 0px, 0px);
 	if(!m.getAttribute('domDetached')){
-		var spa=Cr.elm('div',{'class':'_videotapespacer','events':[['contextmenu',spacerContextMenu]],'style':'display:inline-block;height:'+m.clientHeight+'px;width:'+m.clientWidth+'px;'});
+		var spa=Cr.elm('div',{
+			'class':'_videotapespacer',
+			'events':[
+				['contextmenu',spacerContextMenu]
+			],
+			'style':'display:inline-block;height:'+m.clientHeight+'px;width:'+m.clientWidth+'px;'
+		});
 		m.parentNode.insertBefore(spa,m);
 	}
 	document.body.style.marginBottom=origBottomMargin; // reset
