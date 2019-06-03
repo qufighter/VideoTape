@@ -318,12 +318,23 @@ function ctx_remove_spacer(ev){
 	clearContextMenu();
 }
 
+function ctx_restore_video(ev){
+	var m = ctx_cur_elm.parentNode.querySelector('[vidtapeorigprops]');
+	if( !m ){
+		console.log('unknown video m', ctx_cur_elm.parentNode);
+		return;
+	}
+	unfixVideo(m, origPropsFromNode(m), false);
+	clearContextMenu();
+}
+
 function spacerContextMenu(ev){
 	var elm=getEventTarget(ev);
 	ctx_cur_elm=elm;
 	clearContextMenu();
 	Cr.elm('div',{id:'videoTapeCtxM',style:'position:absolute;top:'+ev.pageY+'px;left:'+ev.pageX+'px;'},[
 		Cr.elm('a',{events:[['mouseup',ctx_remove_spacer,true]]},[Cr.txt('Remove Video Spacer')]),
+		Cr.elm('a',{events:[['mouseup',ctx_restore_video,true]]},[Cr.txt('Restore video here')]),
 		Cr.elm('a',{events:[['mouseup',clearContextMenu,true]]},[Cr.txt('Close Menu')])
 	],document.body);
 	return preventEventDefault(ev);
@@ -367,6 +378,7 @@ function affixVideo(m){
 	return m;
 }
 function unfixVideo(m, meta, showRestored){
+	exitFullscreen(m);
 	if(m.previousSibling && m.previousSibling.className=='_videotapespacer'){
 		if( !m.parentNode ){
 			console.log('video not found!', meta);
@@ -388,6 +400,11 @@ function videoNodeAt(req, i){
 	var m = vidoeAt(i).elm;
 	if( !m || !m.getAttribute("vidtapeorigprops") ){  console.log('vidsbee.videotape.problem ',req,' nodeProp> ',m?m.getAttribute("vidtapeorigprops"):'falsey','please report the URL');return false;};
 	return m;
+}
+
+function origPropsFromNode(n){
+	var origProps=JSON.parse(n.getAttribute("vidtapeorigprops")) || false;
+	return origProps;
 }
 
 function vidoeAt(i){
@@ -548,7 +565,6 @@ function(request, sender, sendResponse) {
 	}else if (request.unfixVideo){
 		m =  videoNodeAt(request, request.unfixVideo);
 		if( !m ) return sendResponse({});
-		exitFullscreen(m);
 		unfixVideo(m, vidoeAt(i), request.showRestored);
 		sendResponse({});
 	}else if (request.domDetachVideo){
