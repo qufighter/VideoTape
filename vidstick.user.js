@@ -72,11 +72,11 @@ var e=(document.getElementsByTagName('head')[0]||document.body);
 if(!_ge(styleelem.id) && e){e.appendChild(styleelem);}
 
 var chkForNodesTimeout=0;
-function nodeInserted(e){
-	if(e.relatedNode.querySelectorAll('embed,object,video,iframe').length < 1) return;
+function nodeInserted(){
 	clearTimeout(chkForNodesTimeout);
 	chkForNodesTimeout=setTimeout(checkForNodes,250);
 }
+var observer = new MutationObserver(nodeInserted)
 
 var validNodes=[];
 var topFixed=1000;
@@ -287,8 +287,7 @@ function resetOrigionalProperties(validNode){
 
 setTimeout(function(){
 	checkForNodes();
-	document.body.addEventListener('DOMNodeInserted', nodeInserted, false);
-	document.body.addEventListener('DOMNodeRemoved', nodeInserted, false);
+	observer.observe(document.body, { attributes: false, childList: true, subtree: true });
 	document.addEventListener('webkitfullscreenchange', checkFullscreen, false);//fullscreenchange
 }, 1230);
 
