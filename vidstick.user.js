@@ -295,9 +295,12 @@ var isFullscreen=false;
 function checkFullscreen(){
 	isFullscreen=!isFullscreen;
 	if( isFullscreen ){
-		if( !_ge('videotape-stylesheet') ){
-			Cr.elm('link',{href:chrome.extension.getURL('vidstick.user.css'),rel:'stylesheet',type:'text/css',media:'screen',id:'videotape-stylesheet'},[],document.head);
-		}
+		addFsStyles();
+	}
+}
+function addFsStyles(){
+	if( !_ge('videotape-stylesheet') ){
+		Cr.elm('link',{href:chrome.extension.getURL('vidstick.user.css'),rel:'stylesheet',type:'text/css',media:'screen',id:'videotape-stylesheet'},[],document.head);
 	}
 }
 
@@ -380,6 +383,7 @@ function affixVideo(m){
 	}
 	document.body.style.marginBottom=origBottomMargin; // reset
 	m = m.querySelector('[vidtapeabovecount]') || m;
+	addFsStyles(); // some FS is not true fs, but simulated... and so our css supports nested [fullscreen] selector too now...
 	return m;
 }
 function unfixVideo(m, meta, showRestored){
