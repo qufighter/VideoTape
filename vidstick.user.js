@@ -1,3 +1,4 @@
+// This file is part of the "Video Tape" extension
 videoTapeBlock: {
 if(document.body && document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
 const ATTRIB_FILLSCREEN = "vidtapefullscreen";
@@ -395,9 +396,16 @@ function unfixVideo(m, meta, showRestored){
 	}
 	resetOrigionalProperties(m);
 	updateCount(-1);
-	if(showRestored)m.scrollIntoViewIfNeeded();
+	if(showRestored){
+		intoView(m);
+	}
 	checkForNodes();//viewScrolled();//similar effects, but since we reset node, scan for nodes again
 	return m;
+}
+
+function intoView(m){
+	if(m.scrollIntoViewIfNeeded)m.scrollIntoViewIfNeeded();
+	else if(m.scrollIntoView)m.scrollIntoView();
 }
 
 function updateCount(diff){
