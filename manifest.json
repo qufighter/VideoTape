@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "description": "Allows you to tape most videos to the window so you can scroll around or read on while the video plays on screen.",
   "name": "Video Tape",
   "content_scripts": [ {
@@ -11,7 +11,7 @@
      "matches": [ "*://*.redditmedia.com/mediaembed/*" ],
      "all_frames": true
   } ],
-  "page_action": {
+  "action": {
      "default_icon": {
        "19": "images/inactive/icon19.png",
        "38": "images/inactive/icon38.png"
@@ -20,8 +20,7 @@
      "default_popup": "popup.html"
    },
   "background": {
-     "scripts": ["background.js"],
-     "persistent": false
+     "service_worker": "background.js"
   },
   "options_page": "options.html",
   "icons": { "16": "images/icon16.png",
@@ -30,11 +29,17 @@
           "64": "images/icon64.png",
          "128": "images/icon128.png" },
   "web_accessible_resources": [
-    "vidstick.user.css"
+    {
+        "resources": ["vidstick.user.css"],
+        "matches": []
+    }
   ],
   "permissions": [
-         "<all_urls>","tabs"
-       ],
+         "tabs"
+  ],
+  "host_permissions": [
+      "<all_urls>"
+  ],
   "browser_specific_settings": {"gecko": {"id": "{330ced42-da77-45dd-9b0e-63c0dde6d681}"}},
   "version": "0.0.2.12"
 }
