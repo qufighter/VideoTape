@@ -35,11 +35,8 @@
     }
   ],
   "permissions": [
-         "tabs"
-  ],
-  "host_permissions": [
-      "<all_urls>"
+         "activeTab", "tabs"
   ],
   "browser_specific_settings": {"gecko": {"id": "{330ced42-da77-45dd-9b0e-63c0dde6d681}"}},
-  "version": "0.0.3.0"
+  "version": "0.0.3.1"
 }
