@@ -1,6 +1,6 @@
 // This file is part of the "Video Tape" extension
-videoTapeBlock: {
-if(document.body && document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
+videoTapeBlock: {//                               chromeextension:video-tape
+//if(document.body && document.body.getAttribute('chromeextension-video-tape'))break videoTapeBlock;
 const ATTRIB_FILLSCREEN = "vidtapefullscreen";
 var tabid=false;
 var vidDropShadow=false;
@@ -517,7 +517,8 @@ function sizeFullscreenVideo(m){
 setWindowSize(lastWindowSize);
 window.addEventListener('resize', viewResized);
 
-if(!document.body.getAttribute('chromeextension:video-tape'))chrome.runtime.onMessage.addListener(
+//if(!document.body.getAttribute('chromeextension:video-tape'))
+chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
 	var m, i, l;
 	if (request.getLayout){
@@ -529,7 +530,9 @@ function(request, sender, sendResponse) {
 				var sp=getFixedOffset(m);
 				response.push({x:sp.x,y:sp.y,w:m.scrollWidth,h:m.scrollHeight,fixed:m.style.position=='fixed'});
 			}
-		sendResponse({win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response});
+		var rsp={win:{w:getWindowWidth(),h:getWindowHeight(),scrypcnt:window.pageYOffset/(document.body.scrollHeight-getWindowHeight()),docHei:document.body.scrollHeight,scry:window.pageYOffset},elm:response};
+		//console.log(rsp);
+		sendResponse(rsp);
 	}else if (typeof(request.scrToYpcnt)!='undefined'){
 		window.scrollTo(0,Math.round(request.scrToYpcnt * (document.body.scrollHeight-getWindowHeight())));
 	}else if (typeof(request.scrToYpx)!='undefined'){
@@ -606,5 +609,5 @@ function(request, sender, sendResponse) {
 		sendResponse({});
 	}else sendResponse({});
 });
-document.body.setAttribute('chromeextension:video-tape',true);
+//document.body.setAttribute('chromeextension:video-tape',true);
 }//end block
