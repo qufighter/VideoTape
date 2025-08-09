@@ -31,7 +31,7 @@
   "web_accessible_resources": [
     {
         "resources": ["vidstick.user.css"],
-        "matches": []
+        "matches": ["<all_urls>", "file:///*"]
     }
   ],
   "permissions": [
